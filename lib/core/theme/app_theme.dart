@@ -8,8 +8,13 @@ class AppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
 
-    colorScheme: ColorScheme.light(primary: AppColors.primary),
+    colorScheme: ColorScheme.light(
+      primary: AppColors.primary,
+      surface: AppColors.background,
+      error: AppColors.error,
+    ),
 
+    scaffoldBackgroundColor: AppColors.background,
     fontFamily: 'Poppins',
 
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -27,6 +32,9 @@ class AppTheme {
     ),
 
     inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.white,
+
       hintStyle: AppTextStyles.textField,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
 
@@ -57,7 +65,8 @@ class AppTheme {
 
     appBarTheme: AppBarTheme(
       titleTextStyle: AppTextStyles.appBarTitle,
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.background,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: false,
     ),
