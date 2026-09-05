@@ -27,8 +27,8 @@ class AppTextStyles {
     fontFamily: 'Poppins',
     fontSize: 14,
     fontWeight: FontWeight.w400,
-    height: 1.0,
-    color: AppColors.textSecondary,
+    height: 1.3,
+    color: AppColors.textPrimary,
   );
 
   // Small Text
@@ -37,7 +37,7 @@ class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.w400,
     height: 1.0,
-    color: AppColors.textSecondary,
+    color: AppColors.black,
   );
 
   // TextField

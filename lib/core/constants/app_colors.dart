@@ -28,6 +28,6 @@ class AppColors {
   static const Color surfaceLight = Color(0xFFF7F7F7);
 
   // Icon Colors
-  static const Color iconBackground = Color(0xFFDFEAF5);
+  static const Color iconBackground = Color(0xFFBBBFD0);
   static const Color iconColor = Color(0xFF1976D2);
 }
