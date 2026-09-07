@@ -38,7 +38,6 @@ class _DocumentUploadBottomSheetState extends State<DocumentUploadBottomSheet> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: context.h(198),
       padding: const EdgeInsets.fromLTRB(
         30, // left
         24, // top
@@ -46,6 +45,7 @@ class _DocumentUploadBottomSheetState extends State<DocumentUploadBottomSheet> {
         30, // bottom
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             "Upload Profile Picture",
@@ -58,20 +58,24 @@ class _DocumentUploadBottomSheetState extends State<DocumentUploadBottomSheet> {
           SizedBox(height: context.h(19)),
           Row(
             children: [
-              ImageSourceCard(
-                image: Assets.imagesFromGallery,
-                title: 'From Gallery',
-                onTap: () {
-                  uploadFromGallery();
-                },
+              Expanded(
+                child: ImageSourceCard(
+                  image: Assets.imagesFromGallery,
+                  title: 'From Gallery',
+                  onTap: () {
+                    uploadFromGallery();
+                  },
+                ),
               ),
               SizedBox(width: context.w(9)),
-              ImageSourceCard(
-                image: Assets.imagesTakePicture,
-                title: 'Take Picture',
-                onTap: () {
-                  uploadFromCamera();
-                },
+              Expanded(
+                child: ImageSourceCard(
+                  image: Assets.imagesTakePicture,
+                  title: 'Take Picture',
+                  onTap: () {
+                    uploadFromCamera();
+                  },
+                ),
               ),
             ],
           ),

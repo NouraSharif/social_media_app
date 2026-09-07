@@ -19,34 +19,37 @@ class ResetPasswordPage extends StatelessWidget {
       body: Form(
         key: formstate,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
+              const SizedBox(height: 14),
               const CustomDescription(
                 text: "Please enter your registered email to reset your password!",
               ),
-              const Spacer(),
-              Column(
-                spacing: 20,
-                children: [
-                  CustomTextFormField(label: 'Your Email'),
-                  CustomButton(
-                    text: 'Reset Password',
-                    onPressed: () {
-                      context.push(AppRoutes.checkEmail);
-                    },
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CustomTextFormField(label: 'Your Email'),
+                    SizedBox(height: 25),
+                    CustomButton(
+                      text: 'Reset Password',
+                      onPressed: () {
+                        context.push(AppRoutes.checkEmail);
+                      },
+                    ),
+                  ],
+                ),
               ),
-              const Spacer(),
               Column(
-                spacing: 10,
                 children: [
                   const Text(
                     "Remember your Password?",
                     style: AppTextStyles.body,
                     textAlign: TextAlign.center,
                   ),
+                  const SizedBox(height: 12),
                   ElevatedButton(
                     onPressed: () {
                       context.go(AppRoutes.auth);
@@ -66,6 +69,7 @@ class ResetPasswordPage extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 40),
             ],
           ),
         ),

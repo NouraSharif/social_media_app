@@ -24,14 +24,11 @@ class _VerificationPageState extends State<VerificationPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Verification')),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.w(20),
-          vertical: context.h(20),
-        ),
+        padding: const EdgeInsets.fromLTRB(20, 22, 20, 25),
         child: Column(
           children: [
             const CustomDescription(text: 'Please upload your documents'),
-            SizedBox(height: context.h(50)),
+            const SizedBox(height: 50),
             Container(
               width: double.infinity,
               height: context.h(437),
@@ -78,14 +75,14 @@ class _VerificationPageState extends State<VerificationPage> {
                 ),
               ),
             ),
-            SizedBox(height: context.h(68)),
+            const SizedBox(height: 68),
             CustomButton(
               text: 'Next',
               onPressed: () {
                 context.push(AppRoutes.completeProfile);
               },
             ),
-            SizedBox(height: context.h(10)),
+            const SizedBox(height: 10),
             SkipButton(
               onPressed: () {
                 context.push(AppRoutes.completeProfile);

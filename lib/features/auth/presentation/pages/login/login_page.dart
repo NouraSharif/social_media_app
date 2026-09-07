@@ -18,12 +18,13 @@ class LoginPage extends StatelessWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: Column(
-                spacing: 10,
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomTextFormField(label: 'Your Email'),
+                  const SizedBox(height: 15),
                   CustomTextFormField(label: 'Password'),
+                  const SizedBox(height: 8),
                   Align(
                     alignment: Alignment.centerRight,
                     child: InkWell(
@@ -40,7 +41,7 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 25),
                   CustomButton(text: 'login', onPressed: () {}),
                 ],
               ),

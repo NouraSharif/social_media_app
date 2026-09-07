@@ -24,15 +24,13 @@ class CompleteProfilePage extends StatelessWidget {
       body: Form(
         key: formstate,
         child: ListView(
-          padding: EdgeInsets.symmetric(
-            horizontal: context.w(20),
-            vertical: context.h(20),
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 20),
           children: [
+            const SizedBox(height: 15),
             const CustomDescription(
               text: 'Please fill the following information to complete your profile',
             ),
-            SizedBox(height: context.h(20)),
+            const SizedBox(height: 20),
             CustomImagePickerBox(
               title: 'Upload Picture',
               assetIcon: Assets.imagesUploadPicture,
@@ -43,11 +41,11 @@ class CompleteProfilePage extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             CustomTextFormField(label: "Username", hintText: "@a.b"),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             CustomTextFormField(label: "Display Name", hintText: 'Superman'),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             Row(
               children: [
                 Expanded(
@@ -56,7 +54,7 @@ class CompleteProfilePage extends StatelessWidget {
                     hintText: 'Jamaal',
                   ),
                 ),
-                SizedBox(width: context.w(10)),
+                const SizedBox(width: 10),
                 Expanded(
                   child: CustomTextFormField(
                     label: "Last Name",
@@ -65,9 +63,9 @@ class CompleteProfilePage extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             CustomTextFormField(label: "Bio", maxLines: 5),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             CustomTextFormField(
               label: "Date of Birth",
               hintText: 'MM/DD/YYYY',
@@ -87,11 +85,11 @@ class CompleteProfilePage extends StatelessWidget {
                 if (pickedDate != null) {}
               },
             ),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             CustomGenderPicker(),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             CustomTextFormField(label: "Address", hintText: 'Enter Address'),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             CustomDropdownField(
               label: 'Country',
               hintText: 'Select',
@@ -113,7 +111,7 @@ class CompleteProfilePage extends StatelessWidget {
               ],
               onSelected: (value) {},
             ),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             CustomDropdownField(
               label: 'State',
               hintText: 'Select',
@@ -142,11 +140,11 @@ class CompleteProfilePage extends StatelessWidget {
               ],
               onSelected: (value) {},
             ),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             CustomTextFormField(label: "City"),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             CustomTextFormField(label: "ZIP Code"),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             CustomDropdownField(
               label: 'Chasing Category',
               hintText: 'Chasing Category',
@@ -168,9 +166,9 @@ class CompleteProfilePage extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: context.h(15)),
+            const SizedBox(height: 15),
             CustomTextFormField(label: "Chasing Description", maxLines: 5),
-            SizedBox(height: context.h(30)),
+            const SizedBox(height: 30),
             SizedBox(
               width: context.w(335),
               height: context.h(102),
@@ -180,11 +178,12 @@ class CompleteProfilePage extends StatelessWidget {
                     width: double.infinity,
                     child: CustomButton(text: 'Save', onPressed: () {}),
                   ),
-                  SizedBox(height: context.h(5)),
+                  const SizedBox(height: 5),
                   SkipButton(onPressed: () {}),
                 ],
               ),
             ),
+            const SizedBox(height: 25),
           ],
         ),
       ),

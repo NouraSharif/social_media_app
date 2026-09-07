@@ -41,12 +41,8 @@ class CustomImagePickerBox extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  assetIcon,
-                  width: context.w(40),
-                  height: context.h(40),
-                ),
-                SizedBox(height: context.h(8)),
+                Image.asset(assetIcon, width: 40, height: 40),
+                const SizedBox(height: 8),
                 Text(
                   title,
                   style: AppTextStyles.body.copyWith(

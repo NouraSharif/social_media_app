@@ -22,14 +22,17 @@ class SignUpPage extends StatelessWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: Column(
-                spacing: 8,
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomTextFormField(label: 'Your Email'),
+                  const SizedBox(height: 15),
                   CustomTextFormField(label: 'Password'),
+                  const SizedBox(height: 15),
                   CustomTextFormField(label: 'Confirm your Password'),
+                  const SizedBox(height: 10),
                   PasswordRequirements(),
+                  const SizedBox(height: 15),
                   Row(
                     children: [
                       Checkbox(
@@ -53,13 +56,14 @@ class SignUpPage extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 15),
                   CustomButton(
                     text: 'Sign Up',
                     onPressed: () {
                       context.push(AppRoutes.verification);
                     },
                   ),
-                  SizedBox(height: 1),
+                  const SizedBox(height: 10),
                   Text.rich(
                     TextSpan(
                       style: AppTextStyles.small.copyWith(fontSize: 10),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
-import 'package:social_media_app/core/utils/context_extension.dart';
 
 class CustomDropdownField extends StatelessWidget {
   final String label;
@@ -25,7 +24,7 @@ class CustomDropdownField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: AppTextStyles.small),
-        SizedBox(height: context.h(4)),
+        const SizedBox(height: 4),
         DropdownMenu<String>(
           width: double.infinity,
           hintText: hintText,

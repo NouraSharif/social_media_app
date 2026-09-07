@@ -17,33 +17,43 @@ class AuthPage extends StatelessWidget {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
-              const TabBar(
-                padding: EdgeInsets.only(bottom: 15, top: 55),
-                tabAlignment: TabAlignment.start,
-                isScrollable: true,
-                labelPadding: EdgeInsets.only(right: 90),
-                tabs: [
-                  Tab(text: "Login"),
-                  Tab(text: "Sign Up"),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final scale = (constraints.maxWidth / 335).clamp(0.9, 1.15);
+                  final tabSpacing = 91 * scale;
+                  return TabBar(
+                    padding: EdgeInsets.only(
+                      top: 65 * scale,
+                      bottom: 14 * scale,
+                    ),
+                    tabAlignment: TabAlignment.start,
+                    isScrollable: true,
+                    labelPadding: EdgeInsets.only(right: tabSpacing),
+                    overlayColor: WidgetStateProperty.all(Colors.transparent),
+                    tabs: const [
+                      Tab(text: 'Login'),
+                      Tab(text: 'Sign Up'),
+                    ],
+                  );
+                },
               ),
               const CustomDescription(
-                text: "Please fill below information to access your account!",
+                text: 'Please fill below information to access your account!',
               ),
               Expanded(
                 child: TabBarView(children: [LoginPage(), SignUpPage()]),
               ),
-              const Text("or continue with", style: AppTextStyles.body),
-              const SizedBox(height: 16),
+              const Text('Or continue with', style: AppTextStyles.body),
+              const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SocialLoginButton(
                     icon: FontAwesomeIcons.google,
-                    backgroundColor: const Color(0xFFD85140),
+                    backgroundColor: Color(0xFFD85140),
                   ),
                   SocialLoginButton(
                     icon: FontAwesomeIcons.facebook,
@@ -55,7 +65,7 @@ class AuthPage extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 40),
             ],
           ),
         ),
