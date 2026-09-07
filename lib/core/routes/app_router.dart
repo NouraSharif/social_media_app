@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/features/auth/presentation/pages/auth/auth_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/check_email/check_email_page.dart';
+import 'package:social_media_app/features/auth/presentation/pages/complete_profile/complete_profile_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/login/login_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/new_password/new_password_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/reset_password/reset_password_page.dart';
@@ -25,20 +26,24 @@ final GoRouter appRouter = GoRouter(
       builder: (context, builder) => SignUpPage(),
     ),
     GoRoute(
-      path: AppRoutes.resetpassword,
+      path: AppRoutes.resetPassword,
       builder: (context, builder) => ResetPasswordPage(),
     ),
     GoRoute(
-      path: AppRoutes.checkemail,
+      path: AppRoutes.checkEmail,
       builder: (context, builder) => CheckEmailPage(),
     ),
     GoRoute(
-      path: AppRoutes.newpassword,
+      path: AppRoutes.newPassword,
       builder: (context, builder) => NewPasswordPage(),
     ),
     GoRoute(
       path: AppRoutes.verification,
       builder: (context, builder) => VerificationPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.completeProfile,
+      builder: (context, builder) => CompleteProfilePage(),
     ),
   ],
 );

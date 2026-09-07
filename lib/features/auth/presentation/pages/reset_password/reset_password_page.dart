@@ -33,7 +33,7 @@ class ResetPasswordPage extends StatelessWidget {
                   CustomButton(
                     text: 'Reset Password',
                     onPressed: () {
-                      context.push(AppRoutes.checkemail);
+                      context.push(AppRoutes.checkEmail);
                     },
                   ),
                 ],

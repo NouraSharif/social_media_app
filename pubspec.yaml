@@ -48,6 +48,13 @@ dependencies:
 
   # Brand Icons
   font_awesome_flutter: ^11.0.0
+  
+  # UI
+  dotted_border: ^3.1.0
+
+  # Image Selection
+  image_picker: ^1.2.3
+
 
 dev_dependencies:
   flutter_test:

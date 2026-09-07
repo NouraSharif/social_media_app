@@ -73,7 +73,7 @@ class CheckEmailPage extends StatelessWidget {
                 CustomButton(
                   text: 'Verify',
                   onPressed: () {
-                    context.push(AppRoutes.newpassword);
+                    context.push(AppRoutes.newPassword);
                   },
                 ),
                 Text.rich(

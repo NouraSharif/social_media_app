@@ -28,7 +28,7 @@ class LoginPage extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: InkWell(
                       onTap: () {
-                        context.push(AppRoutes.resetpassword);
+                        context.push(AppRoutes.resetPassword);
                       },
                       child: Text(
                         "Forget Your Password?",
