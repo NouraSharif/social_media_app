@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:social_media_app/core/constants/app_colors.dart';
+import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
 
 import '../model/post_model.dart';
@@ -37,6 +39,7 @@ class _HomePageState extends State<HomePage> {
 
           return PostCard(
             post: post,
+            onTap: ()=> context.push(AppRoutes.postDetailsPath(post.id)),
             onLikeTap: () => _toggleLike(post),
           );
         },
