@@ -10,6 +10,10 @@
 	<string>Social Media App</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>NSCameraUsageDescription</key>
+    <string>نحتاج الكاميرا لالتقاط صورة للبوست</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>نحتاج الوصول للمعرض لاختيار صورة للبوست</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>

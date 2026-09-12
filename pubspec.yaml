@@ -45,10 +45,13 @@ dependencies:
   # Navigation
   go_router: ^18.0.0
 
+  # State Management
   flutter_bloc: ^8.1.5
   equatable: ^2.0.5
 
-
+  #image picker
+  image_picker: ^1.1.2
+  photo_manager: ^3.6.0
 
 dev_dependencies:
   flutter_test:

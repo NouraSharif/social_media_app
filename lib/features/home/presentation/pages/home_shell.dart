@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:social_media_app/core/constants/app_colors.dart';
+import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import '../widgets/main_bottom_nav_bar.dart';
 
@@ -28,9 +28,7 @@ class HomeShell extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-
       body: navigationShell,
-
       floatingActionButtonLocation:
       FloatingActionButtonLocation.centerDocked,
 
@@ -47,9 +45,7 @@ class HomeShell extends StatelessWidget {
           elevation: 0,
           backgroundColor: AppColors.primary,
           shape: const CircleBorder(),
-          onPressed: () {
-            // TODO: Navigate to Create Post
-          },
+          onPressed: () => context.push(AppRoutes.createPost),
           child: const Icon(
             CupertinoIcons.add,
             color: AppColors.black,
