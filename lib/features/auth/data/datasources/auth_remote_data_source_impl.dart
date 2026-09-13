@@ -3,13 +3,18 @@ import 'package:social_media_app/features/auth/data/datasources/auth_remote_data
 import 'package:social_media_app/features/auth/data/models/user_model.dart';
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
+  final FirebaseAuth firebaseAuth;
+  AuthRemoteDataSourceImpl(this.firebaseAuth);
+
   @override
   Future<UserModel> signup({
     required String email,
     required String password,
   }) async {
-    final credential = await FirebaseAuth.instance
-        .createUserWithEmailAndPassword(email: email, password: password);
+    final credential = await firebaseAuth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
 
     final user = credential.user!;
 
