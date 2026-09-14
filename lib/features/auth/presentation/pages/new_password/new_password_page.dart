@@ -13,6 +13,8 @@ class NewPasswordPage extends StatefulWidget {
 }
 
 class _NewPasswordPageState extends State<NewPasswordPage> {
+  bool obscurePassword = true;
+  bool obscureConfirmPassword = true;
   GlobalKey<FormState> formstate = GlobalKey();
 
   final passwordController = TextEditingController();
@@ -47,11 +49,33 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                       CustomTextFormField(
                         label: 'New Password',
                         controller: passwordController,
+                        obscureText: obscurePassword,
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              obscurePassword = !obscurePassword;
+                            });
+                          },
+                          icon: obscurePassword
+                              ? Icon(Icons.visibility_off)
+                              : Icon(Icons.visibility),
+                        ),
                       ),
                       const SizedBox(height: 14),
                       CustomTextFormField(
                         label: 'Confirm Password',
                         controller: confirmPasswordController,
+                        obscureText: obscureConfirmPassword,
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              obscureConfirmPassword = !obscureConfirmPassword;
+                            });
+                          },
+                          icon: obscureConfirmPassword
+                              ? Icon(Icons.visibility_off)
+                              : Icon(Icons.visibility),
+                        ),
                       ),
                       const SizedBox(height: 10),
                       PasswordRequirements(),

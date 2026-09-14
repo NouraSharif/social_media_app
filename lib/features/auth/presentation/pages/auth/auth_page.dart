@@ -49,9 +49,12 @@ class AuthPage extends StatelessWidget {
               Expanded(
                 child: TabBarView(
                   children: [
-                    LoginPage(),
                     BlocProvider(
-                      create: (_) => AuthBloc(signupUseCase),
+                      create: (_) => AuthBloc(signupUseCase, loginUseCase),
+                      child: const LoginPage(),
+                    ),
+                    BlocProvider(
+                      create: (_) => AuthBloc(signupUseCase, loginUseCase),
                       child: const SignUpPage(),
                     ),
                   ],

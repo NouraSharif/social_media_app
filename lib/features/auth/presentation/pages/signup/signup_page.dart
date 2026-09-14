@@ -21,6 +21,8 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  bool obscurePassword = true;
+  bool obscureConfirmPassword = true;
   final GlobalKey<FormState> formstate = GlobalKey();
 
   final emailController = TextEditingController();
@@ -78,6 +80,17 @@ class _SignUpPageState extends State<SignUpPage> {
                               validator: (value) {
                                 return AuthValidators.password(value);
                               },
+                              obscureText: obscurePassword,
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    obscurePassword = !obscurePassword;
+                                  });
+                                },
+                                icon: obscurePassword
+                                    ? Icon(Icons.visibility_off)
+                                    : Icon(Icons.visibility),
+                              ),
                             ),
                             const SizedBox(height: 15),
                             CustomTextFormField(
@@ -89,6 +102,18 @@ class _SignUpPageState extends State<SignUpPage> {
                                   passwordController.text,
                                 );
                               },
+                              obscureText: obscureConfirmPassword,
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    obscureConfirmPassword =
+                                        !obscureConfirmPassword;
+                                  });
+                                },
+                                icon: obscureConfirmPassword
+                                    ? Icon(Icons.visibility_off)
+                                    : Icon(Icons.visibility),
+                              ),
                             ),
                             const SizedBox(height: 10),
                             PasswordRequirements(),

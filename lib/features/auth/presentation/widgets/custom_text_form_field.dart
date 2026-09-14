@@ -13,6 +13,7 @@ class CustomTextFormField extends StatelessWidget {
     this.readOnly,
     this.suffixIcon,
     this.suffixStyle,
+    this.obscureText = false,
   });
   final String label;
   final TextEditingController controller;
@@ -23,6 +24,7 @@ class CustomTextFormField extends StatelessWidget {
   final bool? readOnly;
   final Widget? suffixIcon;
   final TextStyle? suffixStyle;
+  final bool obscureText;
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +44,10 @@ class CustomTextFormField extends StatelessWidget {
             hintStyle: AppTextStyles.body,
             suffixIcon: suffixIcon,
           ),
-          maxLines: maxLines,
+          maxLines: obscureText ? 1 : maxLines,
           readOnly: readOnly ?? false,
           onTap: onTap,
+          obscureText: obscureText,
         ),
       ],
     );
