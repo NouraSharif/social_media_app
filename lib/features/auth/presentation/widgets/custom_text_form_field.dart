@@ -5,6 +5,8 @@ class CustomTextFormField extends StatelessWidget {
   const CustomTextFormField({
     super.key,
     required this.label,
+    required this.controller,
+    this.validator,
     this.hintText,
     this.maxLines,
     this.onTap,
@@ -12,14 +14,16 @@ class CustomTextFormField extends StatelessWidget {
     this.suffixIcon,
     this.suffixStyle,
   });
-
   final String label;
+  final TextEditingController controller;
+  final String? Function(String?)? validator;
   final String? hintText;
   final int? maxLines;
   final Function()? onTap;
   final bool? readOnly;
   final Widget? suffixIcon;
   final TextStyle? suffixStyle;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -28,6 +32,8 @@ class CustomTextFormField extends StatelessWidget {
       children: [
         Text(label, style: AppTextStyles.small),
         TextFormField(
+          controller: controller,
+          validator: validator,
           onTapOutside: (event) {
             FocusScope.of(context).unfocus();
           },

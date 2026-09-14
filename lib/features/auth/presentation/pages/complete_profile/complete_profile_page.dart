@@ -12,10 +12,41 @@ import 'package:social_media_app/features/auth/presentation/widgets/custom_text_
 import 'package:social_media_app/features/auth/presentation/widgets/document_upload_bottom_sheet.dart';
 import 'package:social_media_app/features/auth/presentation/widgets/skip_button.dart';
 
-class CompleteProfilePage extends StatelessWidget {
-  CompleteProfilePage({super.key});
+class CompleteProfilePage extends StatefulWidget {
+  const CompleteProfilePage({super.key});
 
+  @override
+  State<CompleteProfilePage> createState() => _CompleteProfilePageState();
+}
+
+class _CompleteProfilePageState extends State<CompleteProfilePage> {
   final GlobalKey<FormState> formstate = GlobalKey();
+
+  final usernameController = TextEditingController();
+  final displayNameController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final bioController = TextEditingController();
+  final dateOfBirthController = TextEditingController();
+  final addressController = TextEditingController();
+  final cityController = TextEditingController();
+  final zipCodeController = TextEditingController();
+  final chasingDescriptionController = TextEditingController();
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    displayNameController.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
+    bioController.dispose();
+    dateOfBirthController.dispose();
+    addressController.dispose();
+    cityController.dispose();
+    zipCodeController.dispose();
+    chasingDescriptionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +73,17 @@ class CompleteProfilePage extends StatelessWidget {
               },
             ),
             const SizedBox(height: 15),
-            CustomTextFormField(label: "Username", hintText: "@a.b"),
+            CustomTextFormField(
+              label: "Username",
+              hintText: "@a.b",
+              controller: usernameController,
+            ),
             const SizedBox(height: 15),
-            CustomTextFormField(label: "Display Name", hintText: 'Superman'),
+            CustomTextFormField(
+              label: "Display Name",
+              hintText: 'Superman',
+              controller: displayNameController,
+            ),
             const SizedBox(height: 15),
             Row(
               children: [
@@ -52,6 +91,7 @@ class CompleteProfilePage extends StatelessWidget {
                   child: CustomTextFormField(
                     label: "First Name",
                     hintText: 'Jamaal',
+                    controller: firstNameController,
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -59,16 +99,22 @@ class CompleteProfilePage extends StatelessWidget {
                   child: CustomTextFormField(
                     label: "Last Name",
                     hintText: 'Williams',
+                    controller: lastNameController,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 15),
-            CustomTextFormField(label: "Bio", maxLines: 5),
+            CustomTextFormField(
+              label: "Bio",
+              maxLines: 5,
+              controller: bioController,
+            ),
             const SizedBox(height: 15),
             CustomTextFormField(
               label: "Date of Birth",
               hintText: 'MM/DD/YYYY',
+              controller: dateOfBirthController,
               readOnly: true,
               suffixIcon: Icon(
                 Icons.calendar_month_rounded,
@@ -88,7 +134,11 @@ class CompleteProfilePage extends StatelessWidget {
             const SizedBox(height: 15),
             CustomGenderPicker(),
             const SizedBox(height: 15),
-            CustomTextFormField(label: "Address", hintText: 'Enter Address'),
+            CustomTextFormField(
+              label: "Address",
+              hintText: 'Enter Address',
+              controller: addressController,
+            ),
             const SizedBox(height: 15),
             CustomDropdownField(
               label: 'Country',
@@ -141,9 +191,12 @@ class CompleteProfilePage extends StatelessWidget {
               onSelected: (value) {},
             ),
             const SizedBox(height: 15),
-            CustomTextFormField(label: "City"),
+            CustomTextFormField(label: "City", controller: cityController),
             const SizedBox(height: 15),
-            CustomTextFormField(label: "ZIP Code"),
+            CustomTextFormField(
+              label: "ZIP Code",
+              controller: zipCodeController,
+            ),
             const SizedBox(height: 15),
             CustomDropdownField(
               label: 'Chasing Category',
@@ -167,7 +220,11 @@ class CompleteProfilePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 15),
-            CustomTextFormField(label: "Chasing Description", maxLines: 5),
+            CustomTextFormField(
+              label: "Chasing Description",
+              maxLines: 5,
+              controller: chasingDescriptionController,
+            ),
             const SizedBox(height: 30),
             SizedBox(
               width: context.w(335),

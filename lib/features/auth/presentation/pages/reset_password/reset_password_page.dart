@@ -7,10 +7,23 @@ import 'package:social_media_app/features/auth/presentation/widgets/custom_butto
 import 'package:social_media_app/features/auth/presentation/widgets/custom_description.dart';
 import 'package:social_media_app/features/auth/presentation/widgets/custom_text_form_field.dart';
 
-class ResetPasswordPage extends StatelessWidget {
-  ResetPasswordPage({super.key});
+class ResetPasswordPage extends StatefulWidget {
+  const ResetPasswordPage({super.key});
 
+  @override
+  State<ResetPasswordPage> createState() => _ResetPasswordPageState();
+}
+
+class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final GlobalKey<FormState> formstate = GlobalKey();
+
+  final emailController = TextEditingController();
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +44,10 @@ class ResetPasswordPage extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CustomTextFormField(label: 'Your Email'),
+                    CustomTextFormField(
+                      label: 'Your Email',
+                      controller: emailController,
+                    ),
                     SizedBox(height: 25),
                     CustomButton(
                       text: 'Reset Password',

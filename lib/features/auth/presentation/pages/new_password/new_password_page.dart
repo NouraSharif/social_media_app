@@ -5,8 +5,25 @@ import 'package:social_media_app/features/auth/presentation/widgets/custom_descr
 import 'package:social_media_app/features/auth/presentation/widgets/custom_text_form_field.dart';
 import 'package:social_media_app/features/auth/presentation/widgets/password_requirements.dart';
 
-class NewPasswordPage extends StatelessWidget {
+class NewPasswordPage extends StatefulWidget {
   const NewPasswordPage({super.key});
+
+  @override
+  State<NewPasswordPage> createState() => _NewPasswordPageState();
+}
+
+class _NewPasswordPageState extends State<NewPasswordPage> {
+  GlobalKey<FormState> formstate = GlobalKey();
+
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +44,15 @@ class NewPasswordPage extends StatelessWidget {
                         text: "Please enter your new password with confirmation and don't share it with others!",
                       ),
                       SizedBox(height: context.h(107)),
-                      CustomTextFormField(label: 'New Password'),
+                      CustomTextFormField(
+                        label: 'New Password',
+                        controller: passwordController,
+                      ),
                       const SizedBox(height: 14),
-                      CustomTextFormField(label: 'Confirm Password'),
+                      CustomTextFormField(
+                        label: 'Confirm Password',
+                        controller: confirmPasswordController,
+                      ),
                       const SizedBox(height: 10),
                       PasswordRequirements(),
                       const SizedBox(height: 20),

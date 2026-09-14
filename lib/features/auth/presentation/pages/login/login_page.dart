@@ -4,10 +4,26 @@ import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/features/auth/presentation/widgets/custom_button.dart';
 import 'package:social_media_app/features/auth/presentation/widgets/custom_text_form_field.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> formstate = GlobalKey();
+
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -21,9 +37,15 @@ class LoginPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CustomTextFormField(label: 'Your Email'),
+                  CustomTextFormField(
+                    label: 'Your Email',
+                    controller: emailController,
+                  ),
                   const SizedBox(height: 15),
-                  CustomTextFormField(label: 'Password'),
+                  CustomTextFormField(
+                    label: 'Password',
+                    controller: passwordController,
+                  ),
                   const SizedBox(height: 8),
                   Align(
                     alignment: Alignment.centerRight,

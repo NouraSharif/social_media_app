@@ -10,8 +10,6 @@ import 'package:social_media_app/features/auth/presentation/pages/signup/signup_
 import 'package:social_media_app/features/auth/presentation/pages/splash/splash_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/verification/verification_page.dart';
 
-//import 'package:social_media_app/core/routes/app_routes.dart';
-
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
   routes: [
