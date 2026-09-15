@@ -1,5 +1,8 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:social_media_app/core/injection_container.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
+import 'package:social_media_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:social_media_app/features/auth/presentation/pages/auth/auth_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/check_email/check_email_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/complete_profile/complete_profile_page.dart';
@@ -25,15 +28,42 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.resetPassword,
-      builder: (context, builder) => ResetPasswordPage(),
+      builder: (context, builder) => BlocProvider(
+        create: (context) => AuthBloc(
+          signupUseCase,
+          loginUseCase,
+          sendResetOtpUseCase,
+          verifyResetUseCase,
+          resetPasswordUseCase,
+        ),
+        child: ResetPasswordPage(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.checkEmail,
-      builder: (context, builder) => CheckEmailPage(),
+      builder: (context, builder) => BlocProvider(
+        create: (context) => AuthBloc(
+          signupUseCase,
+          loginUseCase,
+          sendResetOtpUseCase,
+          verifyResetUseCase,
+          resetPasswordUseCase,
+        ),
+        child: CheckEmailPage(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.newPassword,
-      builder: (context, builder) => NewPasswordPage(),
+      builder: (context, builder) => BlocProvider(
+        create: (context) => AuthBloc(
+          signupUseCase,
+          loginUseCase,
+          sendResetOtpUseCase,
+          verifyResetUseCase,
+          resetPasswordUseCase,
+        ),
+        child: NewPasswordPage(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.verification,

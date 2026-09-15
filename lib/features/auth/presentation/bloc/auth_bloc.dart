@@ -1,6 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_app/core/injection_container.dart';
 import 'package:social_media_app/features/auth/domain/usecases/login.dart';
+import 'package:social_media_app/features/auth/domain/usecases/reset_password.dart';
+import 'package:social_media_app/features/auth/domain/usecases/send_reset_otp.dart';
+import 'package:social_media_app/features/auth/domain/usecases/verify_reset_otp.dart';
 
 import '../../domain/usecases/signup.dart';
 import 'auth_event.dart';
@@ -10,9 +14,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignupUseCase signupUseCase;
   final LoginUseCase loginUseCase;
 
-  AuthBloc(this.signupUseCase, this.loginUseCase) : super(AuthInitial()) {
+  final SendResetOtpUseCase sendResetOtpUseCase;
+  final VerifyResetUseCase verifyResetUseCase;
+  final ResetPasswordUseCase resetPasswordUseCase;
+
+  AuthBloc(
+    this.signupUseCase,
+    this.loginUseCase,
+    this.sendResetOtpUseCase,
+    this.verifyResetUseCase,
+    this.resetPasswordUseCase,
+  ) : super(AuthInitial()) {
     on<SignupRequested>(_onSignupRequested);
     on<LoginRequested>(_onLoginRequested);
+    on<SendResetOtpRequested>(_onSendResetOtpRequested);
+    on<VerifyResetOtpRequested>(_onVerifyResetOtpRequested);
+    on<ResetPasswordRequested>(_onResetPasswordRequested);
   }
 
   Future<void> _onSignupRequested(
@@ -47,6 +64,58 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthFailure('Something went wrong. Please try again.'));
       }
     }
+  }
+}
+
+Future<void> _onSendResetOtpRequested(
+  SendResetOtpRequested event,
+  Emitter<AuthState> emit,
+) async {
+  emit(AuthLoading());
+
+  try {
+    await sendResetOtpUseCase(email: event.email);
+
+    emit(AuthSuccess());
+  } catch (e) {
+    emit(AuthFailure(e.toString()));
+  }
+}
+
+Future<void> _onVerifyResetOtpRequested(
+  VerifyResetOtpRequested event,
+  Emitter<AuthState> emit,
+) async {
+  emit(AuthLoading());
+
+  try {
+    final resetToken = await verifyResetUseCase(
+      email: event.email,
+      otp: event.otp,
+    );
+
+    emit(AuthResetOtpVerified(resetToken));
+  } catch (e) {
+    emit(AuthFailure(e.toString()));
+  }
+}
+
+Future<void> _onResetPasswordRequested(
+  ResetPasswordRequested event,
+  Emitter<AuthState> emit,
+) async {
+  emit(AuthLoading());
+
+  try {
+    await resetPasswordUseCase(
+      email: event.email,
+      resetToken: event.resetToken,
+      newPassword: event.newPassword,
+    );
+
+    emit(AuthSuccess());
+  } catch (e) {
+    emit(AuthFailure(e.toString()));
   }
 }
 

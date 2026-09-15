@@ -13,6 +13,15 @@ class AuthLoading extends AuthState {}
 
 class AuthSuccess extends AuthState {}
 
+class AuthResetOtpVerified extends AuthState {
+  final String resetToken;
+
+  const AuthResetOtpVerified(this.resetToken);
+
+  @override
+  List<Object?> get props => [resetToken];
+}
+
 class AuthFailure extends AuthState {
   final String message;
 
