@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
@@ -18,6 +20,12 @@ class VerificationPage extends StatefulWidget {
 
 class _VerificationPageState extends State<VerificationPage> {
   String selectedValue = 'id_card';
+
+  File? idCardFront;
+  File? idCardBack;
+
+  File? driverLicenseFront;
+  File? driverLicenseBack;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +69,14 @@ class _VerificationPageState extends State<VerificationPage> {
                       ),
 
                       if (selectedValue == 'id_card')
-                        const DocumentUploadCard(),
+                        DocumentUploadCard(
+                          onFrontChanged: (file) {
+                            idCardFront = file;
+                          },
+                          onBackChanged: (file) {
+                            idCardBack = file;
+                          },
+                        ),
                       VerificationRadioTile(
                         label: 'Driver License',
                         selectedValue: selectedValue,
@@ -69,7 +84,14 @@ class _VerificationPageState extends State<VerificationPage> {
                       ),
 
                       if (selectedValue == 'driver_license')
-                        const DocumentUploadCard(),
+                        DocumentUploadCard(
+                          onFrontChanged: (file) {
+                            driverLicenseFront = file;
+                          },
+                          onBackChanged: (file) {
+                            driverLicenseBack = file;
+                          },
+                        ),
                     ],
                   ),
                 ),

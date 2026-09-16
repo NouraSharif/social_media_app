@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
@@ -7,11 +9,13 @@ import 'package:social_media_app/core/utils/context_extension.dart';
 class CustomDottedBorder extends StatelessWidget {
   final String title;
   final String image;
+  final File? selectedImage;
 
   const CustomDottedBorder({
     super.key,
     required this.title,
     required this.image,
+    this.selectedImage,
   });
 
   @override
@@ -27,17 +31,29 @@ class CustomDottedBorder extends StatelessWidget {
       child: SizedBox(
         width: context.w(295),
         height: context.h(155),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(image, width: 40, height: 40),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
-            ),
-          ],
-        ),
+        child: selectedImage != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.file(
+                  selectedImage!,
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(image, width: 40, height: 40),
+                  const SizedBox(height: 8),
+                  Text(
+                    title,
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }

@@ -14,7 +14,7 @@ import 'package:social_media_app/features/auth/presentation/pages/splash/splash_
 import 'package:social_media_app/features/auth/presentation/pages/verification/verification_page.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.splash,
+  initialLocation: AppRoutes.verification,
   routes: [
     GoRoute(
       path: AppRoutes.splash,
