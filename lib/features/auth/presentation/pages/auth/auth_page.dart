@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
 import 'package:social_media_app/core/injection_container.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
-import 'package:social_media_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:social_media_app/features/auth/presentation/pages/auth/widgets/social_login_button.dart';
 import 'package:social_media_app/features/auth/presentation/pages/login/login_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/signup/signup_page.dart';

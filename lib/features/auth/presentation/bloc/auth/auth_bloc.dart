@@ -5,10 +5,10 @@ import 'package:social_media_app/features/auth/domain/usecases/login.dart';
 import 'package:social_media_app/features/auth/domain/usecases/reset_password.dart';
 import 'package:social_media_app/features/auth/domain/usecases/send_reset_otp.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verify_reset_otp.dart';
+import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_state.dart';
 
-import '../../domain/usecases/signup.dart';
+import '../../../domain/usecases/signup.dart';
 import 'auth_event.dart';
-import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignupUseCase signupUseCase;

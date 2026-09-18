@@ -8,9 +8,9 @@ import 'package:social_media_app/core/constants/app_colors.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
-import 'package:social_media_app/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:social_media_app/features/auth/presentation/bloc/auth_event.dart';
-import 'package:social_media_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_bloc.dart';
+import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_event.dart';
+import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_state.dart';
 import 'package:social_media_app/features/auth/presentation/widgets/custom_button.dart';
 
 class CheckEmailPage extends StatefulWidget {

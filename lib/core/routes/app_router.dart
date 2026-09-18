@@ -2,7 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:social_media_app/core/injection_container.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
-import 'package:social_media_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_bloc.dart';
+import 'package:social_media_app/features/auth/presentation/bloc/verification/verification_cubit.dart';
 import 'package:social_media_app/features/auth/presentation/pages/auth/auth_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/check_email/check_email_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/complete_profile/complete_profile_page.dart';
@@ -14,7 +15,7 @@ import 'package:social_media_app/features/auth/presentation/pages/splash/splash_
 import 'package:social_media_app/features/auth/presentation/pages/verification/verification_page.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.verification,
+  initialLocation: AppRoutes.auth,
   routes: [
     GoRoute(
       path: AppRoutes.splash,
@@ -67,7 +68,12 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.verification,
-      builder: (context, builder) => VerificationPage(),
+      builder: (context, builder) {
+        return BlocProvider(
+          create: (context) => VerificationCubit(verificationUseCase),
+          child: VerificationPage(),
+        );
+      },
     ),
     GoRoute(
       path: AppRoutes.completeProfile,
