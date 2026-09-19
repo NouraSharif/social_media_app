@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:social_media_app/features/auth/data/datasources/verification_remote_data_source.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -32,9 +31,6 @@ class VerificationRemoteDataSourceImpl implements VerificationRemoteDataSource {
     final frontBytes = await imageFront.readAsBytes();
     final backBytes = await imageBack.readAsBytes();
 
-    final result = await supabase.rpc('test_auth_role');
-
-    debugPrint('🟣 Supabase auth test: $result');
     // Upload front image
     await supabase.storage
         .from('verification-documents')
