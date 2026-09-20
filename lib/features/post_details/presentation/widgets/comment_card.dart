@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:social_media_app/features/post_details/domain/entities/comment_entity.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/context_extension.dart';
 import '../../../../core/utils/helper_functions.dart';
 import '../../../../core/widgets/stat_ship.dart';
-import '../model/comment_model.dart';
 
 class CommentCard extends StatelessWidget {
-  final Comment comment;
+  final CommentEntity comment;
   final VoidCallback onLikeTap;
 
   const CommentCard({

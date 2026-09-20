@@ -47,7 +47,7 @@ class PostActionBar extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               minimumSize: Size(context.w(89), context.h(35))
             ),
-              onPressed: (){},
+              onPressed: onPostTap,
               child: Text('Post', style: AppTextStyles.button))
 
         ],

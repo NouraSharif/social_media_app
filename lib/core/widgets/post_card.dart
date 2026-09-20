@@ -2,14 +2,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
+import 'package:social_media_app/core/domain/entities/post_entity.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import 'package:social_media_app/core/utils/helper_functions.dart';
-import '../../../../core/widgets/stat_ship.dart';
-import '../model/post_model.dart';
+import 'stat_ship.dart';
 
 class PostCard extends StatelessWidget {
-  final Post post;
+  final PostEntity post;
   final VoidCallback onLikeTap;
   final VoidCallback? onTap;
 
@@ -18,8 +18,6 @@ class PostCard extends StatelessWidget {
     required this.post,
     required this.onLikeTap,
     this.onTap});
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +36,7 @@ class PostCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              spacing: 12,
               children: [
                 Container(
                   width: avatarRadius * 2,
@@ -60,16 +59,17 @@ class PostCard extends StatelessWidget {
                   )
                       : null,
                 ),
-                SizedBox(width: context.w(10)),
+             //   SizedBox(width: context.w(10)),
                 Expanded(
                   child: Column(
+                    spacing: 5,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         post.userName,
                         style: AppTextStyles.button.copyWith(fontSize: context.sp(15)),
                       ),
-                      SizedBox(height: context.h(5)),
+                      //SizedBox(height: context.h(5)),
                       Text(post.timeAgo, style: AppTextStyles.small.copyWith(fontSize: context.sp(10))),
                     ],
                   ),
@@ -79,7 +79,7 @@ class PostCard extends StatelessWidget {
             ),
 
             if (post.imageUrl != null) ...[
-              SizedBox(height: context.h(12)),
+           SizedBox(height: context.h(12)),
               AspectRatio(
                 aspectRatio: 16 / 10,
                 child: Container(
@@ -93,10 +93,10 @@ class PostCard extends StatelessWidget {
                 ),
               ),
             ],
-            SizedBox(height: context.h(10)),
+         //   SizedBox(height: context.h(10)),
             Text(post.content, style: AppTextStyles.body.copyWith(fontSize: context.sp(14))),
 
-            SizedBox(height: context.h(12)),
+         //  SizedBox(height: context.h(12)),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

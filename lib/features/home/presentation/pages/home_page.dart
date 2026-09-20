@@ -1,47 +1,52 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:social_media_app/core/constants/app_colors.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
-import 'package:social_media_app/core/theme/app_text_styles.dart';
+import 'package:social_media_app/core/widgets/post_card.dart';
 
-import '../model/post_model.dart';
-import '../widgets/post_card.dart';
+import '../bloc/post_feed_bloc.dart';
+import '../bloc/post_feed_event.dart';
+import '../bloc/post_feed_state.dart';
 import '../widgets/u_app_bar.dart';
 
-class HomePage extends StatefulWidget {
+// صارت HomePage بس UI - الـ Bloc منجيبه من الشجرة (جاي من HomeShell فوقها)
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final List<Post> _posts = mockPosts;
-
-  void _toggleLike(Post post) {
-    setState(() {
-      post.isLiked = !post.isLiked;
-      post.likesCount += post.isLiked ? 1 : -1;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: UAppBar(title: 'Feed',),
+      appBar: UAppBar(title: 'Feed'),
+      body: BlocBuilder<PostFeedBloc, PostFeedState>(
+        builder: (context, state) {
+          switch (state.status) {
+            case PostFeedStatus.initial:
+            case PostFeedStatus.loading:
+              return const Center(child: CircularProgressIndicator());
 
-      body: ListView.builder(
-        itemCount: _posts.length,
-        itemBuilder: (context, index) {
-          final post = _posts[index];
+            case PostFeedStatus.failure:
+              return Center(child: Text(state.errorMessage ?? 'حدث خطأ ما'));
 
-          return PostCard(
-            post: post,
-            onTap: ()=> context.push(AppRoutes.postDetailsPath(post.id)),
-            onLikeTap: () => _toggleLike(post),
-          );
+            case PostFeedStatus.success:
+              return ListView.builder(
+                itemCount: state.posts.length,
+                itemBuilder: (context, index) {
+                  final post = state.posts[index];
+                  return PostCard(
+                    post: post,
+                    onLikeTap: () =>
+                        context.read<PostFeedBloc>().add(PostFeedLikeToggled(post)),
+                    onTap: () async {
+                      await context.push(AppRoutes.postDetailsPath(post.id));
+                      if (context.mounted) {
+                        context.read<PostFeedBloc>().add(const PostFeedRequested());
+                      }
+                    },
+                  );
+                },
+              );
+          }
         },
       ),
     );
