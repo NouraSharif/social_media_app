@@ -15,7 +15,6 @@ void main() async {
   await Supabase.initialize(
     url: 'https://lprernyrsvifiohgaenb.supabase.co',
     publishableKey: 'sb_publishable_-9Nm3TUzEZp96f2r0PIyJA_Rp3tXjyc',
-
     accessToken: () async {
       final token = await FirebaseAuth.instance.currentUser?.getIdToken(false);
       return token;
