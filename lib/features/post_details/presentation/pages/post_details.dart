@@ -1,50 +1,55 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:social_media_app/core/constants/app_colors.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_app/core/domain/usecases/get_post_by_id_usecase.dart';
+import 'package:social_media_app/core/domain/usecases/toggle_post_like_usecase.dart';
+import 'package:social_media_app/core/theme/app_text_styles.dart';
+import 'package:social_media_app/core/utils/context_extension.dart';
+import 'package:social_media_app/core/widgets/post_card.dart';
 import 'package:social_media_app/core/widgets/second_appbar.dart';
-import 'package:social_media_app/features/home/presentation/widgets/post_card.dart';
-import 'package:social_media_app/features/post_details/presentation/model/comment_model.dart';
-import 'package:social_media_app/features/post_details/presentation/widgets/comment_card.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/injection_container.dart';
+import '../../domain/usecases/get_comments_usecase.dart';
+import '../../domain/usecases/add_comment_usecase.dart';
+import '../../domain/usecases/toggle_comment_like_usecase.dart';
+import '../bloc/post_details_bloc.dart';
+import '../bloc/post_details_event.dart';
+import '../bloc/post_details_state.dart';
+import '../widgets/comment_card.dart';
 
-import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/utils/context_extension.dart';
-import '../../../home/presentation/model/post_model.dart';
-
-class PostDetailsPage extends StatefulWidget {
+class PostDetailsPage extends StatelessWidget {
   final String postId;
-
   const PostDetailsPage({super.key, required this.postId});
 
   @override
-  State<PostDetailsPage> createState() => _PostDetailsPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => PostDetailsBloc(
+        getPostByIdUseCase: sl<GetPostByIdUseCase>(),
+        togglePostLikeUseCase: sl<TogglePostLikeUseCase>(),
+        getCommentsUseCase: sl<GetCommentsUseCase>(),
+        addCommentUseCase: sl<AddCommentUseCase>(),
+        toggleCommentLikeUseCase: sl<ToggleCommentLikeUseCase>(),
+      )..add(PostDetailsRequested(postId)),
+      child: const _PostDetailsView(),
+    );
+  }
 }
 
-class _PostDetailsPageState extends State<PostDetailsPage> {
-  late List<Comment> _comments ;
+class _PostDetailsView extends StatefulWidget {
+  const _PostDetailsView();
+
+  @override
+  State<_PostDetailsView> createState() => _PostDetailsViewState();
+}
+
+class _PostDetailsViewState extends State<_PostDetailsView> {
   final TextEditingController _commentController = TextEditingController();
-  Post? _post;
 
   @override
   void initState() {
     super.initState();
-    _loadPost();
-    _loadComments();
-    _commentController.addListener(()=> setState(() {
-
-    }));
-
-  }
-  void _loadPost() {
-      _post = mockPosts.cast<Post?>().firstWhere(
-            (post) => post?.id == widget.postId,
-        orElse: () => null,
-      );
-  }
-
-  void _loadComments() {
-    _comments = mockComments
-        .where((comment) => comment.postId == widget.postId)
-        .toList();
+    _commentController.addListener(() => setState(() {}));
   }
 
   @override
@@ -53,89 +58,79 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     super.dispose();
   }
 
-  void _toggleLike(Comment comment) {
-    setState(() {
-      comment.isLiked = !comment.isLiked;
-      comment.likesCount += comment.isLiked ? 1 : -1;
-    });
-  }
-
-  void _handleSendComment() {
-    final commentText = _commentController.text.trim();
-    if (commentText.isNotEmpty) {
-      setState(() {
-        _comments.add(Comment(
-          id: DateTime.now().toString(),
-          userName: 'Current User',
-          userAvatarUrl: null,
-          content: commentText,
-          likesCount: 0,
-          isLiked: false,
-          postId: widget.postId,
-          timeAgo: 'Just now',
-        ));
-        _commentController.clear();
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    if(_post ==null){
-      return Scaffold(
-        appBar: SecondAppbar(title: 'not found'),
-        body: Center(
-          child: Text('Post not found', style: AppTextStyles.body.copyWith(fontSize: context.sp(16)),),
-        ),
-      );
-    }
-    return Scaffold(
-      appBar: SecondAppbar(title: '${_post!.userName}\'s Post'),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              children: [
-                PostCard(
-                  post: mockPosts.firstWhere(
-                    (post) => post.id == widget.postId,
-                  ),
-                  onLikeTap: () {
-                    setState(() {
-                      final post = mockPosts.firstWhere(
-                        (post) => post.id == widget.postId,
-                      );
-                      post.isLiked = !post.isLiked;
-                      post.likesCount += post.isLiked ? 1 : -1;
-                    });
-                  },
-                ),
-                ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: _comments.length,
-                  itemBuilder: (context, index) {
-                    final comment = _comments[index];
-                    return CommentCard(
-                      comment: comment,
-                      onLikeTap: () => _toggleLike(comment),
-                    );
-                  },
-                ),
-              ],
+    return BlocBuilder<PostDetailsBloc, PostDetailsState>(
+      builder: (context, state) {
+        if (state.status == PostDetailsStatus.loading ||
+            state.status == PostDetailsStatus.initial) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+
+        if (state.status == PostDetailsStatus.notFound || state.post == null) {
+          return Scaffold(
+            appBar: const SecondAppbar(title: 'Not Found'),
+            body: Center(
+              child: Text(
+                'Post not found',
+                style: AppTextStyles.body.copyWith(fontSize: context.sp(16)),
+              ),
             ),
+          );
+        }
+
+        final post = state.post!;
+
+        return Scaffold(
+          appBar: SecondAppbar(title: "${post.userName}'s Post"),
+          body: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  children: [
+                    PostCard(
+                      post: post,
+                      onLikeTap: () => context
+                          .read<PostDetailsBloc>()
+                          .add(PostDetailsPostLikeToggled(post)),
+                    ),
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: state.comments.length,
+                      itemBuilder: (context, index) {
+                        final comment = state.comments[index];
+                        return CommentCard(
+                          comment: comment,
+                          onLikeTap: () => context
+                              .read<PostDetailsBloc>()
+                              .add(PostDetailsCommentLikeToggled(comment)),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              CommentBar(
+                controller: _commentController,
+                isEnabled: _commentController.text.trim().isNotEmpty,
+                onSend: () {
+                  context.read<PostDetailsBloc>().add(
+                    PostDetailsCommentSubmitted(_commentController.text),
+                  );
+                  _commentController.clear();
+                },
+                onGalleryTap: () {
+                  // TODO
+                },
+              ),
+            ],
           ),
-          CommentBar(
-            controller: _commentController,
-            onSend: _handleSendComment,
-            isEnabled: _commentController.text.trim().isNotEmpty,
-          onGalleryTap: (){} ,),
-        ],
-      ),
+        );
+      },
     );
   }
 }
-
 class CommentBar extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
