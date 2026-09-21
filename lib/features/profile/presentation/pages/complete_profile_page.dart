@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:social_media_app/core/constants/app_assets.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_cubit.dart';
@@ -26,6 +27,8 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
   final controllers = ProfileFormControllers();
 
+  XFile? selectedProfileImage;
+
   String? selectedGender;
   String? selectedCountry;
   String? selectedState;
@@ -45,7 +48,10 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       chasingCategory: selectedChasingCategory,
     );
 
-    context.read<ProfileCubit>().save(profile);
+    context.read<ProfileCubit>().save(
+      profile,
+      imagePath: selectedProfileImage?.path,
+    );
   }
 
   Future<void> _selectDate() async {
@@ -98,12 +104,19 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                       CustomImagePickerBox(
                         title: 'Upload Picture',
                         assetIcon: Assets.imagesUploadPicture,
-                        onTap: () {
-                          showModalBottomSheet(
+                        image: selectedProfileImage,
+                        onTap: () async {
+                          final image = await showModalBottomSheet<XFile>(
                             context: context,
                             builder: (context) =>
                                 const DocumentUploadBottomSheet(),
                           );
+
+                          if (image != null) {
+                            setState(() {
+                              selectedProfileImage = image;
+                            });
+                          }
                         },
                       ),
 

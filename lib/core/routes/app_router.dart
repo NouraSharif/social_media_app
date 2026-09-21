@@ -18,8 +18,11 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.completeProfile,
       builder: (context, state) {
         return BlocProvider(
-          create: (context) =>
-              ProfileCubit(saveProfile: saveProfile, getProfile: getProfile),
+          create: (context) => ProfileCubit(
+            saveProfile: saveProfile,
+            getProfile: getProfile,
+            uploadProfileImage: uploadProfileImage,
+          ),
           child: CompleteProfilePage(),
         );
       },
