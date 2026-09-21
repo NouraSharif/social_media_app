@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/core/constants/app_assets.dart';
-import 'package:social_media_app/core/constants/app_colors.dart';
-import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
-import 'package:social_media_app/features/profile/presentation/pages/widgets/custom_dropdown.dart';
-import 'package:social_media_app/features/profile/presentation/pages/widgets/custom_gender_picker.dart';
+import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_cubit.dart';
+import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_state.dart';
+import 'package:social_media_app/features/profile/presentation/controllers/profile_form_controllers.dart';
 import 'package:social_media_app/features/profile/presentation/pages/widgets/custom_image_picker_box.dart';
+import 'package:social_media_app/features/profile/presentation/widgets/address_section.dart';
+import 'package:social_media_app/features/profile/presentation/widgets/chasing_section.dart';
 import 'package:social_media_app/features/profile/presentation/widgets/custom_button.dart';
 import 'package:social_media_app/features/profile/presentation/widgets/custom_description.dart';
-import 'package:social_media_app/features/profile/presentation/widgets/custom_text_form_field.dart';
 import 'package:social_media_app/features/profile/presentation/widgets/document_upload_bottom_sheet.dart';
+import 'package:social_media_app/features/profile/presentation/widgets/personal_info_section.dart';
 import 'package:social_media_app/features/profile/presentation/widgets/skip_button.dart';
 
 class CompleteProfilePage extends StatefulWidget {
@@ -20,229 +22,167 @@ class CompleteProfilePage extends StatefulWidget {
 }
 
 class _CompleteProfilePageState extends State<CompleteProfilePage> {
-  final GlobalKey<FormState> formstate = GlobalKey();
+  final GlobalKey<FormState> _formState = GlobalKey<FormState>();
 
-  final usernameController = TextEditingController();
-  final displayNameController = TextEditingController();
-  final firstNameController = TextEditingController();
-  final lastNameController = TextEditingController();
-  final bioController = TextEditingController();
-  final dateOfBirthController = TextEditingController();
-  final addressController = TextEditingController();
-  final cityController = TextEditingController();
-  final zipCodeController = TextEditingController();
-  final chasingDescriptionController = TextEditingController();
+  final controllers = ProfileFormControllers();
+
+  String? selectedGender;
+  String? selectedCountry;
+  String? selectedState;
+  String? selectedChasingCategory;
 
   @override
   void dispose() {
-    usernameController.dispose();
-    displayNameController.dispose();
-    firstNameController.dispose();
-    lastNameController.dispose();
-    bioController.dispose();
-    dateOfBirthController.dispose();
-    addressController.dispose();
-    cityController.dispose();
-    zipCodeController.dispose();
-    chasingDescriptionController.dispose();
+    controllers.dispose();
     super.dispose();
+  }
+
+  void _saveProfile() {
+    final profile = controllers.toProfile(
+      gender: selectedGender,
+      country: selectedCountry,
+      state: selectedState,
+      chasingCategory: selectedChasingCategory,
+    );
+
+    context.read<ProfileCubit>().save(profile);
+  }
+
+  Future<void> _selectDate() async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+
+    if (pickedDate != null) {
+      final month = pickedDate.month.toString().padLeft(2, '0');
+      final day = pickedDate.day.toString().padLeft(2, '0');
+      final year = pickedDate.year.toString();
+
+      controllers.dateOfBirth.text = '$month/$day/$year';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Complete your Profile')),
-      body: Form(
-        key: formstate,
-        child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          children: [
-            const SizedBox(height: 15),
-            const CustomDescription(
-              text: 'Please fill the following information to complete your profile',
-            ),
-            const SizedBox(height: 20),
-            CustomImagePickerBox(
-              title: 'Upload Picture',
-              assetIcon: Assets.imagesUploadPicture,
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (context) => const DocumentUploadBottomSheet(),
-                );
-              },
-            ),
-            const SizedBox(height: 15),
-            CustomTextFormField(
-              label: "Username",
-              hintText: "@a.b",
-              controller: usernameController,
-            ),
-            const SizedBox(height: 15),
-            CustomTextFormField(
-              label: "Display Name",
-              hintText: 'Superman',
-              controller: displayNameController,
-            ),
-            const SizedBox(height: 15),
-            Row(
-              children: [
-                Expanded(
-                  child: CustomTextFormField(
-                    label: "First Name",
-                    hintText: 'Jamaal',
-                    controller: firstNameController,
+      body: BlocConsumer<ProfileCubit, ProfileState>(
+        listener: (context, state) {
+          if (state is ProfileSuccess) {
+            //Go To Home
+          }
+          if (state is ProfileFailure) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.message)));
+          }
+        },
+        builder: (context, state) => state is ProfileLoading
+            ? Center(child: CircularProgressIndicator())
+            : Form(
+                key: _formState,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 15),
+
+                      const CustomDescription(
+                        text: 'Please fill the following information to complete your profile',
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      CustomImagePickerBox(
+                        title: 'Upload Picture',
+                        assetIcon: Assets.imagesUploadPicture,
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) =>
+                                const DocumentUploadBottomSheet(),
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      PersonalInfoSection(
+                        controllers: controllers,
+                        onGenderChanged: (String value) {
+                          setState(() {
+                            selectedGender = value;
+                          });
+                        },
+                        onSelectDate: _selectDate,
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      AddressSection(
+                        controllers: controllers,
+                        selectedCountry: selectedCountry,
+                        selectedState: selectedState,
+                        onCountryChanged: (value) {
+                          setState(() {
+                            selectedCountry = value;
+                          });
+                        },
+                        onStateChanged: (value) {
+                          setState(() {
+                            selectedState = value;
+                          });
+                        },
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      ChasingSection(
+                        controllers: controllers,
+                        selectedCategory: selectedChasingCategory,
+                        onCategoryChanged: (String? value) {
+                          setState(() {
+                            selectedChasingCategory = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 30),
+
+                      SizedBox(
+                        width: context.w(335),
+                        height: context.h(102),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              child: CustomButton(
+                                text: 'Save',
+                                onPressed: () {
+                                  if (_formState.currentState!.validate()) {
+                                    _saveProfile();
+                                  }
+                                },
+                              ),
+                            ),
+
+                            const SizedBox(height: 5),
+
+                            SkipButton(
+                              onPressed: () {
+                                //Go To Home
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 25),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: CustomTextFormField(
-                    label: "Last Name",
-                    hintText: 'Williams',
-                    controller: lastNameController,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 15),
-            CustomTextFormField(
-              label: "Bio",
-              maxLines: 5,
-              controller: bioController,
-            ),
-            const SizedBox(height: 15),
-            CustomTextFormField(
-              label: "Date of Birth",
-              hintText: 'MM/DD/YYYY',
-              controller: dateOfBirthController,
-              readOnly: true,
-              suffixIcon: Icon(
-                Icons.calendar_month_rounded,
-                color: AppColors.textSecondary,
-                size: 20,
               ),
-              onTap: () async {
-                final DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime(2026),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime.now(),
-                );
-                if (pickedDate != null) {}
-              },
-            ),
-            const SizedBox(height: 15),
-            CustomGenderPicker(),
-            const SizedBox(height: 15),
-            CustomTextFormField(
-              label: "Address",
-              hintText: 'Enter Address',
-              controller: addressController,
-            ),
-            const SizedBox(height: 15),
-            CustomDropdownField(
-              label: 'Country',
-              hintText: 'Select',
-              entries: [
-                DropdownMenuEntry(
-                  value: 'palestine',
-                  label: 'Palestine',
-                  style: MenuItemButton.styleFrom(
-                    textStyle: AppTextStyles.textField,
-                  ),
-                ),
-                DropdownMenuEntry(
-                  value: 'egypt',
-                  label: 'Egypt',
-                  style: MenuItemButton.styleFrom(
-                    textStyle: AppTextStyles.textField,
-                  ),
-                ),
-              ],
-              onSelected: (value) {},
-            ),
-            const SizedBox(height: 15),
-            CustomDropdownField(
-              label: 'State',
-              hintText: 'Select',
-              entries: [
-                DropdownMenuEntry(
-                  value: 'single',
-                  label: 'Single',
-                  style: MenuItemButton.styleFrom(
-                    textStyle: AppTextStyles.textField,
-                  ),
-                ),
-                DropdownMenuEntry(
-                  value: 'married',
-                  label: 'Married',
-                  style: MenuItemButton.styleFrom(
-                    textStyle: AppTextStyles.textField,
-                  ),
-                ),
-                DropdownMenuEntry(
-                  value: 'engaged',
-                  label: 'Engaged',
-                  style: MenuItemButton.styleFrom(
-                    textStyle: AppTextStyles.textField,
-                  ),
-                ),
-              ],
-              onSelected: (value) {},
-            ),
-            const SizedBox(height: 15),
-            CustomTextFormField(label: "City", controller: cityController),
-            const SizedBox(height: 15),
-            CustomTextFormField(
-              label: "ZIP Code",
-              controller: zipCodeController,
-            ),
-            const SizedBox(height: 15),
-            CustomDropdownField(
-              label: 'Chasing Category',
-              hintText: 'Chasing Category',
-              onSelected: (value) {},
-              entries: [
-                DropdownMenuEntry(
-                  value: 'trends',
-                  label: 'Trend Chasing',
-                  style: MenuItemButton.styleFrom(
-                    textStyle: AppTextStyles.textField,
-                  ),
-                ),
-                DropdownMenuEntry(
-                  value: 'news',
-                  label: 'News Chasing',
-                  style: MenuItemButton.styleFrom(
-                    textStyle: AppTextStyles.textField,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 15),
-            CustomTextFormField(
-              label: "Chasing Description",
-              maxLines: 5,
-              controller: chasingDescriptionController,
-            ),
-            const SizedBox(height: 30),
-            SizedBox(
-              width: context.w(335),
-              height: context.h(102),
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomButton(text: 'Save', onPressed: () {}),
-                  ),
-                  const SizedBox(height: 5),
-                  SkipButton(onPressed: () {}),
-                ],
-              ),
-            ),
-            const SizedBox(height: 25),
-          ],
-        ),
       ),
     );
   }

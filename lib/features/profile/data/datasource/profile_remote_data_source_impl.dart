@@ -1,16 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:social_media_app/features/profile/data/datasource/profile_remote_data_source.dart';
 import 'package:social_media_app/features/profile/data/model/profile_model.dart';
 import 'package:social_media_app/features/profile/domain/entities/profile.dart';
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   final FirebaseFirestore firestore;
-  ProfileRemoteDataSourceImpl(this.firestore);
+  final FirebaseAuth firebaseAuth;
+  ProfileRemoteDataSourceImpl(this.firestore, this.firebaseAuth);
   @override
-  Future<void> saveProfile({
-    required String uid,
-    required Profile profile,
-  }) async {
+  Future<void> saveProfile({required Profile profile}) async {
+    final user = firebaseAuth.currentUser;
+
+    if (user == null) {
+      throw Exception('User is not authenticated');
+    }
     final profileModel = ProfileModel(
       username: profile.username,
       displayName: profile.displayName,
@@ -29,7 +33,10 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       profileImageUrl: profile.profileImageUrl,
     );
 
-    await firestore.collection('profiles').doc(uid).set(profileModel.toMap());
+    await firestore
+        .collection('profiles')
+        .doc(user.uid)
+        .set(profileModel.toMap());
   }
 
   @override

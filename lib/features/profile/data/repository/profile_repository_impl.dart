@@ -7,8 +7,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
   ProfileRepositoryImpl(this.dataSource);
 
   @override
-  Future<void> saveProfile({required String uid, required Profile profile}) {
-    return dataSource.saveProfile(uid: uid, profile: profile);
+  Future<void> saveProfile({required Profile profile}) {
+    return dataSource.saveProfile(profile: profile);
   }
 
   @override

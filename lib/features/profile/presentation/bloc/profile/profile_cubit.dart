@@ -10,11 +10,11 @@ class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit({required this.saveProfile, required this.getProfile})
     : super(ProfileInitial());
 
-  Future<void> save(String uid, Profile profile) async {
+  Future<void> save(Profile profile) async {
     try {
       emit(ProfileLoading());
 
-      await saveProfile.call(uid: uid, profile: profile);
+      await saveProfile.call(profile: profile);
       emit(ProfileSuccess(profile));
     } catch (e) {
       emit(ProfileFailure("Message Error:$e"));

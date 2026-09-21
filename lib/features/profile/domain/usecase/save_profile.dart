@@ -6,7 +6,7 @@ class SaveProfile {
 
   SaveProfile(this.profileRepository);
 
-  Future<void> call({required String uid, required Profile profile}) {
-    return profileRepository.saveProfile(uid: uid, profile: profile);
+  Future<void> call({required Profile profile}) {
+    return profileRepository.saveProfile(profile: profile);
   }
 }
