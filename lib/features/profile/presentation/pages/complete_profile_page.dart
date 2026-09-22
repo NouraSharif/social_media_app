@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:social_media_app/core/constants/app_assets.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
+import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_cubit.dart';
 import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_state.dart';
 import 'package:social_media_app/features/profile/presentation/controllers/profile_form_controllers.dart';
@@ -23,7 +24,7 @@ class CompleteProfilePage extends StatefulWidget {
 }
 
 class _CompleteProfilePageState extends State<CompleteProfilePage> {
-  final GlobalKey<FormState> _formState = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   final controllers = ProfileFormControllers();
 
@@ -78,124 +79,122 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       body: BlocConsumer<ProfileCubit, ProfileState>(
         listener: (context, state) {
           if (state is ProfileSuccess) {
+            AppSnackBar.showSuccess(context, 'Profile saved successfully.');
             //Go To Home
           }
           if (state is ProfileFailure) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
+            AppSnackBar.showError(context, state.message);
           }
         },
-        builder: (context, state) => state is ProfileLoading
-            ? Center(child: CircularProgressIndicator())
-            : Form(
-                key: _formState,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+        builder: (context, state) => Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                const SizedBox(height: 15),
+
+                const CustomDescription(
+                  text: 'Please fill the following information to complete your profile',
+                ),
+
+                const SizedBox(height: 20),
+
+                CustomImagePickerBox(
+                  title: 'Upload Picture',
+                  assetIcon: Assets.imagesUploadPicture,
+                  image: selectedProfileImage,
+                  onTap: () async {
+                    final image = await showModalBottomSheet<XFile>(
+                      context: context,
+                      builder: (context) => const DocumentUploadBottomSheet(),
+                    );
+
+                    if (image != null) {
+                      setState(() {
+                        selectedProfileImage = image;
+                      });
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 15),
+
+                PersonalInfoSection(
+                  controllers: controllers,
+                  onGenderChanged: (String value) {
+                    setState(() {
+                      selectedGender = value;
+                    });
+                  },
+                  onSelectDate: _selectDate,
+                ),
+
+                const SizedBox(height: 15),
+
+                AddressSection(
+                  controllers: controllers,
+                  selectedCountry: selectedCountry,
+                  selectedState: selectedState,
+                  onCountryChanged: (value) {
+                    setState(() {
+                      selectedCountry = value;
+                    });
+                  },
+                  onStateChanged: (value) {
+                    setState(() {
+                      selectedState = value;
+                    });
+                  },
+                ),
+
+                const SizedBox(height: 15),
+
+                ChasingSection(
+                  controllers: controllers,
+                  selectedCategory: selectedChasingCategory,
+                  onCategoryChanged: (String? value) {
+                    setState(() {
+                      selectedChasingCategory = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 30),
+
+                SizedBox(
+                  width: context.w(335),
+                  height: context.h(102),
                   child: Column(
                     children: [
-                      const SizedBox(height: 15),
-
-                      const CustomDescription(
-                        text: 'Please fill the following information to complete your profile',
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      CustomImagePickerBox(
-                        title: 'Upload Picture',
-                        assetIcon: Assets.imagesUploadPicture,
-                        image: selectedProfileImage,
-                        onTap: () async {
-                          final image = await showModalBottomSheet<XFile>(
-                            context: context,
-                            builder: (context) =>
-                                const DocumentUploadBottomSheet(),
-                          );
-
-                          if (image != null) {
-                            setState(() {
-                              selectedProfileImage = image;
-                            });
-                          }
-                        },
-                      ),
-
-                      const SizedBox(height: 15),
-
-                      PersonalInfoSection(
-                        controllers: controllers,
-                        onGenderChanged: (String value) {
-                          setState(() {
-                            selectedGender = value;
-                          });
-                        },
-                        onSelectDate: _selectDate,
-                      ),
-
-                      const SizedBox(height: 15),
-
-                      AddressSection(
-                        controllers: controllers,
-                        selectedCountry: selectedCountry,
-                        selectedState: selectedState,
-                        onCountryChanged: (value) {
-                          setState(() {
-                            selectedCountry = value;
-                          });
-                        },
-                        onStateChanged: (value) {
-                          setState(() {
-                            selectedState = value;
-                          });
-                        },
-                      ),
-
-                      const SizedBox(height: 15),
-
-                      ChasingSection(
-                        controllers: controllers,
-                        selectedCategory: selectedChasingCategory,
-                        onCategoryChanged: (String? value) {
-                          setState(() {
-                            selectedChasingCategory = value;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 30),
-
                       SizedBox(
-                        width: context.w(335),
-                        height: context.h(102),
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              width: double.infinity,
-                              child: CustomButton(
-                                text: 'Save',
-                                onPressed: () {
-                                  if (_formState.currentState!.validate()) {
-                                    _saveProfile();
-                                  }
-                                },
-                              ),
-                            ),
-
-                            const SizedBox(height: 5),
-
-                            SkipButton(
-                              onPressed: () {
-                                //Go To Home
-                              },
-                            ),
-                          ],
+                        width: double.infinity,
+                        child: CustomButton(
+                          text: 'Save',
+                          isLoading: state is ProfileLoading,
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              _saveProfile();
+                            }
+                          },
                         ),
                       ),
 
-                      const SizedBox(height: 25),
+                      const SizedBox(height: 5),
+
+                      SkipButton(
+                        onPressed: () {
+                          //Go To Home
+                        },
+                      ),
                     ],
                   ),
                 ),
-              ),
+
+                const SizedBox(height: 25),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

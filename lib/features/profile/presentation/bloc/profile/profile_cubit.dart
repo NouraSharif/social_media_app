@@ -31,7 +31,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       emit(ProfileSuccess(profileToSave));
     } catch (e) {
-      emit(ProfileFailure('Message Error: $e'));
+      emit(ProfileFailure(_getProfileErrorMessage(e)));
     }
   }
 
@@ -42,7 +42,25 @@ class ProfileCubit extends Cubit<ProfileState> {
       final profile = await getProfile.call(uid: uid);
       emit(ProfileSuccess(profile));
     } catch (e) {
-      emit(ProfileFailure("Message Error:$e"));
+      emit(ProfileFailure(_getProfileErrorMessage(e)));
     }
   }
+}
+
+String _getProfileErrorMessage(Object e) {
+  final message = e.toString();
+
+  if (message.contains('not authenticated')) {
+    return 'Please log in and try again.';
+  }
+
+  if (message.contains('Profile not found')) {
+    return 'Profile not found.';
+  }
+
+  if (message.contains('network')) {
+    return 'Please check your internet connection.';
+  }
+
+  return 'Something went wrong. Please try again.';
 }
