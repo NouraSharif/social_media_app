@@ -43,7 +43,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       emit(AuthSuccess());
     } catch (e) {
-      emit(AuthFailure(e.toString()));
+      if (e is FirebaseAuthException) {
+        emit(AuthFailure(_getAuthErrorMessage(e)));
+      } else {
+        emit(AuthFailure('Something went wrong. Please try again.'));
+      }
     }
   }
 
@@ -78,7 +82,7 @@ Future<void> _onSendResetOtpRequested(
 
     emit(AuthSuccess());
   } catch (e) {
-    emit(AuthFailure(e.toString()));
+    emit(AuthFailure(e.toString().replaceFirst('Exception: ', '')));
   }
 }
 
@@ -96,7 +100,7 @@ Future<void> _onVerifyResetOtpRequested(
 
     emit(AuthResetOtpVerified(resetToken));
   } catch (e) {
-    emit(AuthFailure(e.toString()));
+    emit(AuthFailure(e.toString().replaceFirst('Exception: ', '')));
   }
 }
 
@@ -115,12 +119,14 @@ Future<void> _onResetPasswordRequested(
 
     emit(AuthSuccess());
   } catch (e) {
-    emit(AuthFailure(e.toString()));
+    emit(AuthFailure(e.toString().replaceFirst('Exception: ', '')));
   }
 }
 
 String _getAuthErrorMessage(FirebaseAuthException e) {
   switch (e.code) {
+    case 'email-already-in-use':
+      return 'This email is already registered.';
     case 'invalid-credential':
       return 'Incorrect email or password.';
     case 'user-not-found':

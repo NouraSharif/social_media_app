@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
+import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_event.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_state.dart';
@@ -22,7 +23,7 @@ class NewPasswordPage extends StatefulWidget {
 class _NewPasswordPageState extends State<NewPasswordPage> {
   bool obscurePassword = true;
   bool obscureConfirmPassword = true;
-  GlobalKey<FormState> formstate = GlobalKey();
+  final _formKey = GlobalKey<FormState>();
 
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -54,99 +55,96 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
+            AppSnackBar.showSuccess(context, 'Password updated successfully.');
             context.go(AppRoutes.auth);
           }
           if (state is AuthFailure) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
+            AppSnackBar.showError(context, state.message);
           }
         },
-        builder: (context, state) => state is AuthLoading
-            ? Center(child: CircularProgressIndicator())
-            : Form(
-                key: formstate,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
+        builder: (context, state) => Form(
+          key: _formKey,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 14),
+                        const CustomDescription(
+                          text: "Please enter your new password with confirmation and don't share it with others!",
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 14),
-                              const CustomDescription(
-                                text: "Please enter your new password with confirmation and don't share it with others!",
-                              ),
-                              SizedBox(height: context.h(107)),
-                              CustomTextFormField(
-                                label: 'New Password',
-                                controller: passwordController,
-                                obscureText: obscurePassword,
-                                validator: (value) {
-                                  return AuthValidators.password(value);
-                                },
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      obscurePassword = !obscurePassword;
-                                    });
-                                  },
-                                  icon: obscurePassword
-                                      ? Icon(Icons.visibility_off)
-                                      : Icon(Icons.visibility),
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-                              CustomTextFormField(
-                                label: 'Confirm Password',
-                                controller: confirmPasswordController,
-                                obscureText: obscureConfirmPassword,
-                                validator: (value) {
-                                  return AuthValidators.confirmPassword(
-                                    value,
-                                    passwordController.text,
-                                  );
-                                },
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      obscureConfirmPassword =
-                                          !obscureConfirmPassword;
-                                    });
-                                  },
-                                  icon: obscureConfirmPassword
-                                      ? Icon(Icons.visibility_off)
-                                      : Icon(Icons.visibility),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              PasswordRequirements(),
-                              const SizedBox(height: 20),
-                              CustomButton(
-                                text: 'Update',
-                                onPressed: () {
-                                  if (formstate.currentState!.validate()) {
-                                    context.read<AuthBloc>().add(
-                                      ResetPasswordRequested(
-                                        email: email,
-                                        resetToken: resetToken,
-                                        newPassword: passwordController.text,
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
-                            ],
+                        SizedBox(height: context.h(107)),
+                        CustomTextFormField(
+                          label: 'New Password',
+                          controller: passwordController,
+                          obscureText: obscurePassword,
+                          validator: (value) {
+                            return AuthValidators.password(value);
+                          },
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                obscurePassword = !obscurePassword;
+                              });
+                            },
+                            icon: obscurePassword
+                                ? Icon(Icons.visibility_off)
+                                : Icon(Icons.visibility),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                        const SizedBox(height: 14),
+                        CustomTextFormField(
+                          label: 'Confirm Password',
+                          controller: confirmPasswordController,
+                          obscureText: obscureConfirmPassword,
+                          validator: (value) {
+                            return AuthValidators.confirmPassword(
+                              value,
+                              passwordController.text,
+                            );
+                          },
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                obscureConfirmPassword =
+                                    !obscureConfirmPassword;
+                              });
+                            },
+                            icon: obscureConfirmPassword
+                                ? Icon(Icons.visibility_off)
+                                : Icon(Icons.visibility),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        PasswordRequirements(),
+                        const SizedBox(height: 20),
+                        CustomButton(
+                          text: 'Update',
+                          isLoading: state is AuthLoading,
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              context.read<AuthBloc>().add(
+                                ResetPasswordRequested(
+                                  email: email,
+                                  resetToken: resetToken,
+                                  newPassword: passwordController.text,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }

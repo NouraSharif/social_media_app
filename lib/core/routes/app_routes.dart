@@ -10,5 +10,4 @@ class AppRoutes {
   static const String checkEmail = '/checkemail';
   static const String newPassword = '/newpassword';
   static const String verification = '/verification';
-  static const String completeProfile = '/completeprofile';
 }

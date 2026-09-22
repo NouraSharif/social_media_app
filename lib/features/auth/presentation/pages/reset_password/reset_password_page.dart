@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
+import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_event.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_state.dart';
@@ -20,7 +21,7 @@ class ResetPasswordPage extends StatefulWidget {
 }
 
 class _ResetPasswordPageState extends State<ResetPasswordPage> {
-  final GlobalKey<FormState> formstate = GlobalKey();
+  final _formKey = GlobalKey<FormState>();
 
   final emailController = TextEditingController();
   @override
@@ -37,89 +38,87 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
+            AppSnackBar.showSuccess(context, 'Reset code sent successfully.');
             context.push(
               AppRoutes.checkEmail,
               extra: emailController.text.trim(),
             );
           }
-
           if (state is AuthFailure) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
+            AppSnackBar.showError(context, state.message);
           }
         },
-        builder: (context, state) => state is AuthLoading
-            ? Center(child: CircularProgressIndicator())
-            : Form(
-                key: formstate,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+        builder: (context, state) => Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                const SizedBox(height: 14),
+                const CustomDescription(
+                  text: "Please enter your registered email to reset your password!",
+                ),
+                Expanded(
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 14),
-                      const CustomDescription(
-                        text: "Please enter your registered email to reset your password!",
+                      CustomTextFormField(
+                        label: 'Your Email',
+                        controller: emailController,
+                        validator: (value) {
+                          return AuthValidators.email(value);
+                        },
                       ),
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CustomTextFormField(
-                              label: 'Your Email',
-                              controller: emailController,
-                              validator: (value) {
-                                return AuthValidators.email(value);
-                              },
-                            ),
-                            SizedBox(height: 25),
-                            CustomButton(
-                              text: 'Reset Password',
-                              onPressed: () {
-                                if (formstate.currentState!.validate()) {
-                                  context.read<AuthBloc>().add(
-                                    SendResetOtpRequested(
-                                      email: emailController.text.trim(),
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          const Text(
-                            "Remember your Password?",
-                            style: AppTextStyles.body,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 12),
-                          ElevatedButton(
-                            onPressed: () {
-                              context.go(AppRoutes.auth);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: AppColors.primary,
-                              backgroundColor: AppColors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                side: const BorderSide(
-                                  color: AppColors.primary,
-                                  width: 1,
-                                ),
+                      const SizedBox(height: 25),
+                      CustomButton(
+                        text: 'Reset Password',
+                        isLoading: state is AuthLoading,
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            context.read<AuthBloc>().add(
+                              SendResetOtpRequested(
+                                email: emailController.text.trim(),
                               ),
-                            ),
-                            child: const Text('Back To Login'),
-                          ),
-                        ],
+                            );
+                          }
+                        },
                       ),
-                      const SizedBox(height: 40),
                     ],
                   ),
                 ),
-              ),
+                Column(
+                  children: [
+                    const Text(
+                      "Remember your Password?",
+                      style: AppTextStyles.body,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.go(AppRoutes.auth);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        backgroundColor: AppColors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      child: const Text('Back To Login'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

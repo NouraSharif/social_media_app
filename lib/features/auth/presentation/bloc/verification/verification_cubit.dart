@@ -25,7 +25,29 @@ class VerificationCubit extends Cubit<VerificationState> {
 
       emit(VerificationSuccess());
     } catch (e) {
-      emit(VerificationFailure(e.toString()));
+      emit(VerificationFailure(_getVerificationErrorMessage(e)));
     }
   }
+}
+
+String _getVerificationErrorMessage(Object e) {
+  final message = e.toString();
+
+  if (message.contains('network')) {
+    return 'Please check your internet connection.';
+  }
+
+  if (message.contains('size')) {
+    return 'The image size is too large.';
+  }
+
+  if (message.contains('format')) {
+    return 'Please upload a valid image format.';
+  }
+
+  if (message.contains('already')) {
+    return 'This document has already been uploaded.';
+  }
+
+  return 'Something went wrong while uploading documents.';
 }
