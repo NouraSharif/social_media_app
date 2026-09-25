@@ -41,9 +41,13 @@ dependencies:
   cloud_firestore: ^6.9.0
   firebase_messaging: ^16.6.0
   google_sign_in: ^7.2.0
+  
+  # OTP
+  flutter_otp_text_field: ^1.1.0+2
 
   # Supabase
   supabase_flutter: ^2.17.2
+
 
   # Bloc
   http: ^1.6.0
@@ -53,8 +57,16 @@ dependencies:
   # Navigation
   go_router: ^18.0.0
 
+  # Brand Icons
+  font_awesome_flutter: ^11.0.0
+  
+  # UI
   dotted_border: ^3.1.0
+
+  # Image Selection
   image_picker: ^1.2.3
+
+
 
 dev_dependencies:
   flutter_test:
@@ -72,13 +84,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/logo.png
     - assets/images/check_email.png
@@ -86,24 +93,7 @@ flutter:
     - assets/images/from_gallery.png
     - assets/images/take_picture.png
     - assets/images/upload_picture.png
-  
-flutter_assets:
-  assets_path: assets/images/
-  output_path: lib/core/constants/
-  filename: app_assets.dart
-  field_prefix:
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/to/resolution-aware-images
 
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/to/asset-from-package
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  flutter:
   fonts:
     - family: Poppins
       fonts:
@@ -113,10 +103,11 @@ flutter_assets:
           weight: 500
         - asset: assets/fonts/Poppins-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Poppins-Bold.ttf  
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/to/font-from-package
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
 
-  
-    
+flutter_assets:
+  assets_path: assets/images/
+  output_path: lib/core/constants/
+  filename: app_assets.dart
+  field_prefix:
