@@ -12,6 +12,8 @@ import 'package:social_media_app/features/auth/presentation/pages/reset_password
 import 'package:social_media_app/features/auth/presentation/pages/signup/signup_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/splash/splash_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/verification/verification_page.dart';
+import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_cubit.dart';
+import 'package:social_media_app/features/profile/presentation/pages/complete_profile_page.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.auth,
@@ -71,6 +73,19 @@ final GoRouter appRouter = GoRouter(
         return BlocProvider(
           create: (context) => VerificationCubit(verificationUseCase),
           child: VerificationPage(),
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.completeProfile,
+      builder: (context, state) {
+        return BlocProvider(
+          create: (context) => ProfileCubit(
+            saveProfile: saveProfile,
+            getProfile: getProfile,
+            uploadProfileImage: uploadProfileImage,
+          ),
+          child: CompleteProfilePage(),
         );
       },
     ),
