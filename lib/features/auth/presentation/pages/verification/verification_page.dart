@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
+import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/verification/verification_cubit.dart';
@@ -40,7 +42,7 @@ class _VerificationPageState extends State<VerificationPage> {
               context,
               'Documents uploaded successfully.',
             );
-            //Go To Complete-profile
+            context.go(AppRoutes.completeProfile);
           }
 
           if (state is VerificationFailure) {
@@ -161,7 +163,7 @@ class _VerificationPageState extends State<VerificationPage> {
 
               SkipButton(
                 onPressed: () {
-                  //Go To Complete-profile
+                  context.push(AppRoutes.completeProfile);
                 },
               ),
             ],
