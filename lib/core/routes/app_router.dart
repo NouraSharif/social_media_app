@@ -12,11 +12,13 @@ import 'package:social_media_app/features/auth/presentation/pages/reset_password
 import 'package:social_media_app/features/auth/presentation/pages/signup/signup_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/splash/splash_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/verification/verification_page.dart';
+import 'package:social_media_app/features/chat/presentation/pages/messages_page.dart';
+import 'package:social_media_app/features/chat/presentation/pages/search_chat_page.dart';
 import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_cubit.dart';
 import 'package:social_media_app/features/profile/presentation/pages/complete_profile_page.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.auth,
+  initialLocation: AppRoutes.messages,
   routes: [
     GoRoute(
       path: AppRoutes.splash,
@@ -88,6 +90,14 @@ final GoRouter appRouter = GoRouter(
           child: CompleteProfilePage(),
         );
       },
+    ),
+    GoRoute(
+      path: AppRoutes.messages,
+      builder: (context, builder) => MessagesPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.searchChat,
+      builder: (context, builder) => SearchChatPage(),
     ),
   ],
 );

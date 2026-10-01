@@ -66,6 +66,8 @@ dependencies:
   # Image Selection
   image_picker: ^1.2.3
 
+  # File Selection
+  file_picker: ^13.1.0
 
 
 dev_dependencies:
@@ -93,6 +95,9 @@ flutter:
     - assets/images/from_gallery.png
     - assets/images/take_picture.png
     - assets/images/upload_picture.png
+    - assets/images/video_picture.png
+    - assets/images/document_picture.png
+    - assets/images/person.png
 
   fonts:
     - family: Poppins
