@@ -1,27 +1,17 @@
-import 'package:social_media_app/core/data/datasources/post_local_datasource.dart';
-import 'package:social_media_app/core/data/models/post_model.dart';
-import 'package:social_media_app/core/domain/entities/post_entity.dart';
-
+import '../datasources/post_remote_datasource.dart';
+import '../../domain/entities/post_entity.dart';
 import '../../domain/repositories/post_repository.dart';
 
-class PostRepositoryImpl implements PostRepository{
-  final PostLocalDataSource localDatasource;
-  const PostRepositoryImpl(this.localDatasource);
-
+class PostRepositoryImpl implements PostRepository {
+  final PostRemoteDataSource remoteDatasource;
+  const PostRepositoryImpl(this.remoteDatasource);
   @override
-  Future<PostEntity> getPostById(String postId) => localDatasource.getPostById(postId);
-
+  Future<PostEntity> getPostById(String postId) =>
+      remoteDatasource.getPostById(postId);
   @override
-  Future<List<PostEntity>> getPosts() => localDatasource.getPosts();
-
+  Future<List<PostEntity>> getPosts() => remoteDatasource.getPosts();
   @override
-  Future<PostEntity> toggleLike(PostEntity post) {
-    final bool newIsLiked = !post.isLiked;
-    final updatedEntity = post.copyWith(
-        isLiked: newIsLiked,
-      likesCount: newIsLiked ? post.likesCount + 1 : post.likesCount - 1,
-    );
-    return localDatasource.updatePost(PostModel.fromEntity(updatedEntity));
+  Future<PostEntity> toggleLike(PostEntity post) async {
+    return remoteDatasource.toggleLike(post.id);
   }
-
 }

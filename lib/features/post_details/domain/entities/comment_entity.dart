@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 
 class CommentEntity extends Equatable {
+  final String authorId;
+  final DateTime? createdAt;
   final String id;
   final String postId;
   final String userName;
@@ -13,6 +15,8 @@ class CommentEntity extends Equatable {
   final bool isLiked;
 
   const CommentEntity({
+    this.authorId = '',
+    this.createdAt,
     required this.id,
     required this.postId,
     required this.userName,
@@ -21,15 +25,14 @@ class CommentEntity extends Equatable {
     this.isDeactivated = false,
     required this.timeAgo,
     required this.content,
-     this.likesCount=0,
+    this.likesCount = 0,
     this.isLiked = false,
   });
 
-  CommentEntity copyWith({
-    int? likesCount,
-    bool? isLiked,
-  }) {
+  CommentEntity copyWith({int? likesCount, bool? isLiked}) {
     return CommentEntity(
+      authorId: authorId,
+      createdAt: createdAt,
       id: id,
       postId: postId,
       userName: userName,
@@ -45,6 +48,8 @@ class CommentEntity extends Equatable {
 
   @override
   List<Object?> get props => [
+    authorId,
+    createdAt,
     id,
     postId,
     userName,
@@ -54,7 +59,6 @@ class CommentEntity extends Equatable {
     timeAgo,
     content,
     likesCount,
-    isLiked
+    isLiked,
   ];
-
 }

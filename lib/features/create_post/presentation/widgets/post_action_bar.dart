@@ -10,6 +10,7 @@ class PostActionBar extends StatelessWidget {
   final VoidCallback onGifTap;
   final VoidCallback onPostTap;
   final bool isEnabled;
+  final bool isLoading;
 
   const PostActionBar({
     super.key,
@@ -17,6 +18,7 @@ class PostActionBar extends StatelessWidget {
     required this.onGifTap,
     required this.onPostTap,
     this.isEnabled = true,
+    this.isLoading = false,
   });
 
   @override
@@ -36,20 +38,23 @@ class PostActionBar extends StatelessWidget {
                   icon: CupertinoIcons.photo,
                   onTap: onGalleryTap,
                 ),
-                _SquareIconButton(
-                  icon: CupertinoIcons.smiley,
-                  onTap: onGifTap,
-                ),
+                _SquareIconButton(icon: CupertinoIcons.smiley, onTap: onGifTap),
               ],
             ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              minimumSize: Size(context.w(89), context.h(35))
+              minimumSize: Size(context.w(89), context.h(35)),
             ),
-              onPressed: onPostTap,
-              child: Text('Post', style: AppTextStyles.button))
-
+            onPressed: isEnabled ? onPostTap : null,
+            child: isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text('Post', style: AppTextStyles.button),
+          ),
         ],
       ),
     );

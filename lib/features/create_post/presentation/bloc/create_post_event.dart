@@ -13,18 +13,11 @@ class CreatePostContentChanged extends CreatePostEvent {
   List<Object?> get props => [content];
 }
 
-class CreatePostCategoryChanged extends CreatePostEvent {
-  final String category;
-  const CreatePostCategoryChanged(this.category);
+class CreatePostImagesChanged extends CreatePostEvent {
+  final List<String> paths;
+  const CreatePostImagesChanged(this.paths);
   @override
-  List<Object?> get props => [category];
-}
-
-class CreatePostPhotoSelected extends CreatePostEvent {
-  final int? index; // null = إلغاء الاختيار
-  const CreatePostPhotoSelected(this.index);
-  @override
-  List<Object?> get props => [index];
+  List<Object?> get props => [paths];
 }
 
 class CreatePostSubmitted extends CreatePostEvent {

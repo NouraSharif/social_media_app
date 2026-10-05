@@ -5,55 +5,70 @@ import 'package:social_media_app/features/home/presentation/bloc/post_feed_state
 
 import '../../../../core/domain/usecases/get_posts_usecase.dart';
 
-class PostFeedBloc extends Bloc<PostFeedEvent , PostFeedState> {
+class PostFeedBloc extends Bloc<PostFeedEvent, PostFeedState> {
   final GetPostsUseCase getPostsUseCase;
   final TogglePostLikeUseCase togglePostLikeUseCase;
+  int _loadVersion = 0;
 
   PostFeedBloc({
     required this.togglePostLikeUseCase,
     required this.getPostsUseCase,
-}): super(const PostFeedState()){
+  }) : super(const PostFeedState()) {
     on<PostFeedRequested>(_onRequested);
     on<PostFeedLikeToggled>(_onLikeToggled);
   }
 
   Future<void> _onRequested(
-      PostFeedRequested event,
-      Emitter<PostFeedState> emit,
-      ) async {
+    PostFeedRequested event,
+    Emitter<PostFeedState> emit,
+  ) async {
+    final version = ++_loadVersion;
     emit(state.copyWith(status: PostFeedStatus.loading));
-    try{
+    try {
       final posts = await getPostsUseCase();
+      if (version != _loadVersion) return;
       emit(state.copyWith(status: PostFeedStatus.success, posts: posts));
-    } catch (e){
-      emit(state.copyWith(status: PostFeedStatus.failure, errorMessage: e.toString()));
-    }
-  }
-  
-  Future<void> _onLikeToggled(
-      PostFeedLikeToggled event,
-      Emitter<PostFeedState> emit,
-      ) async {
-    final optimisticPosts = state.posts.map((p){
-      if(p.id != event.post.id) return p;
-      final newIsLiked = !p.isLiked;
-      return p.copyWith(
-        isLiked: newIsLiked,
-        likesCount: newIsLiked ? p.likesCount + 1 : p.likesCount -1
+    } catch (_) {
+      if (version != _loadVersion) return;
+      emit(
+        state.copyWith(
+          status: PostFeedStatus.failure,
+          errorMessage: 'Could not load posts.',
+        ),
       );
-    }).toList();
-    
-    emit(state.copyWith(posts: optimisticPosts));
-    try{
-      final updated = await togglePostLikeUseCase(event.post);
-      final syncedPosts = state.posts
-      .map((p)=> p.id == updated.id ? updated :p).toList();
-      emit(state.copyWith(posts: syncedPosts));
-    } catch (e){
-      final rolledBack = state.posts
-          .map((p)=> p.id == event.post.id ? event.post :p).toList();
-      emit(state.copyWith(posts: rolledBack));
     }
   }
 
+  Future<void> _onLikeToggled(
+    PostFeedLikeToggled event,
+    Emitter<PostFeedState> emit,
+  ) async {
+    if (state.status != PostFeedStatus.success ||
+        state.likingPostIds.contains(event.post.id)) {
+      return;
+    }
+    emit(
+      state.copyWith(likingPostIds: {...state.likingPostIds, event.post.id}),
+    );
+    try {
+      final updated = await togglePostLikeUseCase(event.post);
+      emit(
+        state.copyWith(
+          posts: state.posts
+              .map((post) => post.id == updated.id ? updated : post)
+              .toList(),
+          likingPostIds: {...state.likingPostIds}..remove(event.post.id),
+        ),
+      );
+    } catch (_) {
+      emit(
+        state.copyWith(
+          likingPostIds: {...state.likingPostIds}..remove(event.post.id),
+          errorMessage: 'Could not update like. Check your connection and sign-in, then try again.',
+        ),
+      );
+    }
+    // If navigation started a load during this write, load again after it commits.
+    if (state.status == PostFeedStatus.loading) add(const PostFeedRequested());
+  }
 }

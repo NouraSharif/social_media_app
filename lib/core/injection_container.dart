@@ -5,14 +5,14 @@ import 'package:social_media_app/features/create_post/data/datasources/create_po
 import 'package:social_media_app/features/create_post/data/repositories/create_post_repository_impl.dart';
 import 'package:social_media_app/features/create_post/domain/repositories/create_post_repository.dart';
 
-import '../features/post_details/data/datasources/comment_local_datasource.dart';
+import '../features/post_details/data/datasources/comment_remote_datasource.dart';
 import '../features/post_details/data/repositories/comment_repository_impl.dart';
 import '../features/post_details/domain/repositories/comment_repository.dart';
 import '../features/post_details/domain/usecases/get_comments_usecase.dart';
 import '../features/post_details/domain/usecases/add_comment_usecase.dart';
 import '../features/post_details/domain/usecases/toggle_comment_like_usecase.dart';
 import '../features/create_post/domain/usecases/create_post_usecase.dart';
-import 'data/datasources/post_local_datasource.dart';
+import 'data/datasources/post_remote_datasource.dart';
 import 'data/repositories/post_repository_impl.dart';
 import 'domain/repositories/post_repository.dart';
 import 'domain/usecases/get_post_by_id_usecase.dart';
@@ -43,14 +43,14 @@ import 'package:social_media_app/features/profile/presentation/bloc/profile/prof
 final GetIt sl = GetIt.instance;
 void setupDependencies() {
   // datasources - lazy singletons
-  sl.registerLazySingleton<PostLocalDataSource>(
-    () => PostLocalDatasourceImpl(),
+  sl.registerLazySingleton<PostRemoteDataSource>(
+    () => PostRemoteDataSource(firestore, firebaseAuth),
   );
-  sl.registerLazySingleton<CommentLocalDatasource>(
-    () => CommentLocalDataSourceImpl(),
+  sl.registerLazySingleton<CommentRemoteDataSource>(
+    () => CommentRemoteDataSource(firestore, firebaseAuth),
   );
   sl.registerLazySingleton<CreatePostRemoteDataSource>(
-    () => CreatePostLocalDataSourceImpl(),
+    () => CreatePostRemoteDataSourceImpl(firestore, firebaseAuth, supabase),
   );
 
   // repositories

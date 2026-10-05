@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:social_media_app/core/constants/app_assets.dart';
@@ -7,7 +9,6 @@ import 'package:social_media_app/core/utils/context_extension.dart';
 
 class PhotoPickerRow extends StatelessWidget {
   final List<String> imagePaths;
-  final int? selectedIndex;
   final VoidCallback onAddPhotoTap;
   final ValueChanged<int> onPhotoSelected;
 
@@ -16,7 +17,6 @@ class PhotoPickerRow extends StatelessWidget {
     required this.imagePaths,
     required this.onAddPhotoTap,
     required this.onPhotoSelected,
-    this.selectedIndex,
   });
 
   @override
@@ -34,21 +34,20 @@ class PhotoPickerRow extends StatelessWidget {
             return _AddPhotoButton(size: itemSize, onTap: onAddPhotoTap);
           }
           final photoIndex = index - 1;
-          final isSelected = selectedIndex == photoIndex;
-          return GestureDetector(
-            onTap: () => onPhotoSelected(photoIndex),
-            child: Container(
-              width: itemSize,
-              height: itemSize,
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(context.w(12)),
-                border: isSelected
-                    ? Border.all(color: AppColors.primary, width: 2.5)
-                    : null,
-                image: DecorationImage(
-                  image: NetworkImage(imagePaths[photoIndex]),
-                  fit: BoxFit.cover,
+          return Tooltip(
+            message: 'Tap to remove image',
+            child: GestureDetector(
+              onTap: () => onPhotoSelected(photoIndex),
+              child: Container(
+                width: itemSize,
+                height: itemSize,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(context.w(12)),
+                  image: DecorationImage(
+                    image: FileImage(File(imagePaths[photoIndex])),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
@@ -96,43 +95,39 @@ Future<void> showAddPhotoSheet({
     context: context,
     backgroundColor: AppColors.white,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical
-        (top: Radius.circular(context.w(20))),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(context.w(20))),
     ),
     builder: (context) {
       return SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            padding: EdgeInsets.symmetric(
-              horizontal: context.w(23),
+        child: ListView(
+          shrinkWrap: true,
+          padding: EdgeInsets.symmetric(horizontal: context.w(23)),
+          children: [
+            Text('Upload Picture', style: AppTextStyles.appBarTitle),
+            SizedBox(height: context.h(20)),
+            Row(
+              spacing: 5,
+              children: [
+                _PhotoSourceOption(
+                  iconAsset: Assets.imagesTakePicture,
+                  label: 'Take a picture',
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onTakePicture();
+                  },
+                ),
+                _PhotoSourceOption(
+                  iconAsset: Assets.imagesFromGallery,
+                  label: 'From gallery',
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onUploadFromGallery();
+                  },
+                ),
+              ],
             ),
-            children: [
-              Text('Upload Picture', style: AppTextStyles.appBarTitle,),
-              SizedBox(height: context.h(20)),
-              Row(
-                spacing: 5,
-                children: [
-                  _PhotoSourceOption(
-                    iconAsset: Assets.imagesTakePicture,
-                    label: 'Take a picture',
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      onTakePicture();
-                    },
-                  ),
-                  _PhotoSourceOption(
-                    iconAsset: Assets.imagesFromGallery,
-                    label: 'From gallery',
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      onUploadFromGallery();
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-
+          ],
+        ),
       );
     },
   );
@@ -162,16 +157,15 @@ class _PhotoSourceOption extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.iconBackground)
+          border: Border.all(color: AppColors.iconBackground),
         ),
         child: Column(
           spacing: 10,
           children: [
             Image.asset(iconAsset, width: context.w(40), height: context.w(40)),
-            Text(label, style: AppTextStyles.body,)
+            Text(label, style: AppTextStyles.body),
           ],
         ),
-
       ),
     );
   }

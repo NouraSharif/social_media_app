@@ -7,15 +7,15 @@ import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import 'package:social_media_app/core/widgets/post_card.dart';
 import 'package:social_media_app/core/widgets/second_appbar.dart';
+
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/injection_container.dart';
 import '../../domain/usecases/get_comments_usecase.dart';
 import '../../domain/usecases/add_comment_usecase.dart';
-import '../../domain/usecases/toggle_comment_like_usecase.dart';
+import '../widgets/comment_card.dart';
 import '../bloc/post_details_bloc.dart';
 import '../bloc/post_details_event.dart';
 import '../bloc/post_details_state.dart';
-import '../widgets/comment_card.dart';
 
 class PostDetailsPage extends StatelessWidget {
   final String postId;
@@ -29,15 +29,15 @@ class PostDetailsPage extends StatelessWidget {
         togglePostLikeUseCase: sl<TogglePostLikeUseCase>(),
         getCommentsUseCase: sl<GetCommentsUseCase>(),
         addCommentUseCase: sl<AddCommentUseCase>(),
-        toggleCommentLikeUseCase: sl<ToggleCommentLikeUseCase>(),
       )..add(PostDetailsRequested(postId)),
-      child: const _PostDetailsView(),
+      child: _PostDetailsView(postId: postId),
     );
   }
 }
 
 class _PostDetailsView extends StatefulWidget {
-  const _PostDetailsView();
+  final String postId;
+  const _PostDetailsView({required this.postId});
 
   @override
   State<_PostDetailsView> createState() => _PostDetailsViewState();
@@ -45,6 +45,7 @@ class _PostDetailsView extends StatefulWidget {
 
 class _PostDetailsViewState extends State<_PostDetailsView> {
   final TextEditingController _commentController = TextEditingController();
+  int _submittedCount = 0;
 
   @override
   void initState() {
@@ -60,13 +61,46 @@ class _PostDetailsViewState extends State<_PostDetailsView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PostDetailsBloc, PostDetailsState>(
+    return BlocConsumer<PostDetailsBloc, PostDetailsState>(
+      listener: (context, state) {
+        if (state.submittedCount != _submittedCount) {
+          _submittedCount = state.submittedCount;
+          _commentController.clear();
+        }
+        if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+        }
+      },
       builder: (context, state) {
         if (state.status == PostDetailsStatus.loading ||
             state.status == PostDetailsStatus.initial) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
+        if (state.status == PostDetailsStatus.failure) {
+          return Scaffold(
+            appBar: const SecondAppbar(title: 'Post'),
+            body: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Could not load this post.'),
+                  TextButton(
+                    onPressed: () {
+                      context.read<PostDetailsBloc>().add(
+                        PostDetailsRequested(widget.postId),
+                      );
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
         if (state.status == PostDetailsStatus.notFound || state.post == null) {
           return Scaffold(
             appBar: const SecondAppbar(title: 'Not Found'),
@@ -86,43 +120,34 @@ class _PostDetailsViewState extends State<_PostDetailsView> {
           body: Column(
             children: [
               Expanded(
-                child: ListView(
-                  children: [
-                    PostCard(
-                      post: post,
-                      onLikeTap: () => context
-                          .read<PostDetailsBloc>()
-                          .add(PostDetailsPostLikeToggled(post)),
-                    ),
-                    ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: state.comments.length,
-                      itemBuilder: (context, index) {
-                        final comment = state.comments[index];
-                        return CommentCard(
-                          comment: comment,
-                          onLikeTap: () => context
-                              .read<PostDetailsBloc>()
-                              .add(PostDetailsCommentLikeToggled(comment)),
-                        );
-                      },
-                    ),
-                  ],
+                child: ListView.builder(
+                  itemCount: state.comments.length + 1,
+                  itemBuilder: (context, index) => index == 0
+                      ? PostCard(
+                          post: post,
+                          onLikeTap: state.isLiking || state.isSubmitting
+                              ? null
+                              : () {
+                                  context.read<PostDetailsBloc>().add(
+                                    PostDetailsPostLikeToggled(post),
+                                  );
+                                },
+                        )
+                      : CommentCard(comment: state.comments[index - 1]),
                 ),
               ),
+              if (state.isSubmitting) const LinearProgressIndicator(),
               CommentBar(
                 controller: _commentController,
-                isEnabled: _commentController.text.trim().isNotEmpty,
-                onSend: () {
-                  context.read<PostDetailsBloc>().add(
-                    PostDetailsCommentSubmitted(_commentController.text),
-                  );
-                  _commentController.clear();
-                },
-                onGalleryTap: () {
-                  // TODO
-                },
+                isReadOnly: state.isSubmitting,
+                isEnabled:
+                    !state.isSubmitting &&
+                    !state.isLiking &&
+                    _commentController.text.trim().isNotEmpty &&
+                    _commentController.text.trim().length <= 2000,
+                onSend: () => context.read<PostDetailsBloc>().add(
+                  PostDetailsCommentSubmitted(_commentController.text),
+                ),
               ),
             ],
           ),
@@ -131,16 +156,19 @@ class _PostDetailsViewState extends State<_PostDetailsView> {
     );
   }
 }
+
 class CommentBar extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
   final VoidCallback? onGalleryTap;
+  final bool isReadOnly;
   final bool isEnabled;
   const CommentBar({
     super.key,
     required this.controller,
     required this.onSend,
     this.onGalleryTap,
+    this.isReadOnly = false,
     required this.isEnabled,
   });
 
@@ -160,34 +188,33 @@ class CommentBar extends StatelessWidget {
             Expanded(
               child: TextFormField(
                 controller: controller,
+                readOnly: isReadOnly,
                 maxLines: null,
                 minLines: 1,
                 style: AppTextStyles.textField,
                 decoration: InputDecoration(
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(10)
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(10)
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   fillColor: Colors.grey.shade100,
                   suffixIcon: Container(
                     margin: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                     decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: BorderRadius.circular(
-                        context.w(8),
-                      ),
+                      borderRadius: BorderRadius.circular(context.w(8)),
                     ),
                     child: IconButton(
                       onPressed: onGalleryTap,
                       icon: Icon(
-                      CupertinoIcons.photo,
-                      color: AppColors.primary,
-                      size: context.sp(22),
-                    ),
+                        CupertinoIcons.photo,
+                        color: AppColors.primary,
+                        size: context.sp(22),
+                      ),
                     ),
                   ),
                   hintText: 'Write your comment ..',
@@ -200,19 +227,23 @@ class CommentBar extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-                onPressed:isEnabled? onSend :null,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(context.w(34), context.h(34)),
-                  padding: EdgeInsets.zero,
-                  backgroundColor: isEnabled ?AppColors.primary : AppColors.primary.withOpacity(0.4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(context.w(10)),
-                  ),
+              onPressed: isEnabled ? onSend : null,
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(context.w(34), context.h(34)),
+                padding: EdgeInsets.zero,
+                backgroundColor: isEnabled
+                    ? AppColors.primary
+                    : AppColors.primary.withValues(alpha: 0.4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(context.w(10)),
                 ),
-                child: Icon(
-                  CupertinoIcons.paperplane_fill,
-                  color: AppColors.white,
-                  size: context.sp(20),)),
+              ),
+              child: Icon(
+                CupertinoIcons.paperplane_fill,
+                color: AppColors.white,
+                size: context.sp(20),
+              ),
+            ),
           ],
         ),
       ),

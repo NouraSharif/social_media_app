@@ -18,7 +18,13 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: UAppBar(title: 'Feed'),
-      body: BlocBuilder<PostFeedBloc, PostFeedState>(
+      body: BlocConsumer<PostFeedBloc, PostFeedState>(
+        listener: (context, state) {
+          if (state.errorMessage != null) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+          }
+        },
         builder: (context, state) {
           switch (state.status) {
             case PostFeedStatus.initial:
@@ -26,21 +32,46 @@ class HomePage extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
 
             case PostFeedStatus.failure:
-              return Center(child: Text(state.errorMessage ?? 'حدث خطأ ما'));
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Could not load posts. Please try again.'),
+                    TextButton(
+                      onPressed: () => context.read<PostFeedBloc>().add(
+                        const PostFeedRequested(),
+                      ),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
 
             case PostFeedStatus.success:
+              if (state.posts.isEmpty) {
+                return const Center(
+                  child: Text('No posts yet. Create the first one!'),
+                );
+              }
               return ListView.builder(
                 itemCount: state.posts.length,
                 itemBuilder: (context, index) {
                   final post = state.posts[index];
                   return PostCard(
                     post: post,
-                    onLikeTap: () =>
-                        context.read<PostFeedBloc>().add(PostFeedLikeToggled(post)),
+                    onLikeTap: state.likingPostIds.contains(post.id)
+                        ? null
+                        : () {
+                            context.read<PostFeedBloc>().add(
+                              PostFeedLikeToggled(post),
+                            );
+                          },
                     onTap: () async {
                       await context.push(AppRoutes.postDetailsPath(post.id));
                       if (context.mounted) {
-                        context.read<PostFeedBloc>().add(const PostFeedRequested());
+                        context.read<PostFeedBloc>().add(
+                          const PostFeedRequested(),
+                        );
                       }
                     },
                   );

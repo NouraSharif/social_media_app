@@ -1,11 +1,10 @@
 class CreatePostRequest {
   final String content;
-  final String? category;
-  final String? imagePath;
-
+  final String category;
+  final List<String> imagePaths;
   const CreatePostRequest({
     required this.content,
-     this.category,
-    this.imagePath
-});
+    this.category = 'Chasing',
+    this.imagePaths = const [],
+  });
 }

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -22,10 +23,10 @@ import 'package:social_media_app/features/auth/presentation/pages/verification/v
 import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_cubit.dart';
 import 'package:social_media_app/features/profile/presentation/pages/complete_profile_page.dart';
 
-//import 'package:social_media_app/core/routes/app_routes.dart';
-
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.auth,
+  initialLocation: FirebaseAuth.instance.currentUser != null
+      ? AppRoutes.home
+      : AppRoutes.auth,
   routes: [
     GoRoute(
       path: AppRoutes.splash,

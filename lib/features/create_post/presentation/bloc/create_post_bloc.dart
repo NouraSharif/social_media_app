@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../domain/entities/create_post_request.dart';
 import '../../domain/usecases/create_post_usecase.dart';
 import 'create_post_event.dart';
@@ -6,45 +8,66 @@ import 'create_post_state.dart';
 
 class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
   final CreatePostUseCase createPostUseCase;
-
-  CreatePostBloc({required this.createPostUseCase}) : super(const CreatePostState()) {
-    on<CreatePostContentChanged>(_onContentChanged);
-    on<CreatePostCategoryChanged>(_onCategoryChanged);
-    on<CreatePostPhotoSelected>(_onPhotoSelected);
+  CreatePostBloc({required this.createPostUseCase})
+    : super(const CreatePostState()) {
+    on<CreatePostContentChanged>((event, emit) {
+      if (state.submissionStatus == CreatePostSubmissionStatus.submitting) {
+        return;
+      }
+      emit(
+        state.copyWith(
+          content: event.content,
+          submissionStatus: CreatePostSubmissionStatus.idle,
+        ),
+      );
+    });
+    on<CreatePostImagesChanged>((event, emit) {
+      if (state.submissionStatus == CreatePostSubmissionStatus.submitting) {
+        return;
+      }
+      emit(
+        state.copyWith(
+          imagePaths: List.unmodifiable(event.paths),
+          submissionStatus: CreatePostSubmissionStatus.idle,
+        ),
+      );
+    });
     on<CreatePostSubmitted>(_onSubmitted);
   }
-
-  void _onContentChanged(CreatePostContentChanged event, Emitter<CreatePostState> emit) {
-    emit(state.copyWith(content: event.content));
-  }
-
-  void _onCategoryChanged(CreatePostCategoryChanged event, Emitter<CreatePostState> emit) {
-    emit(state.copyWith(category: event.category));
-  }
-
-  void _onPhotoSelected(CreatePostPhotoSelected event, Emitter<CreatePostState> emit) {
-    if (event.index == null || state.selectedPhotoIndex == event.index) {
-      emit(state.copyWith(clearSelectedPhoto: true));
-    } else {
-      emit(state.copyWith(selectedPhotoIndex: event.index));
+  Future<void> _onSubmitted(
+    CreatePostSubmitted event,
+    Emitter<CreatePostState> emit,
+  ) async {
+    if (!state.canPost ||
+        state.submissionStatus == CreatePostSubmissionStatus.submitting ||
+        state.submissionStatus == CreatePostSubmissionStatus.success) {
+      return;
     }
-  }
-
-  Future<void> _onSubmitted(CreatePostSubmitted event, Emitter<CreatePostState> emit) async {
-    if (!state.canPost) return;
-
-    emit(state.copyWith(submissionStatus: CreatePostSubmissionStatus.submitting));
+    final request = CreatePostRequest(
+      content: state.content,
+      category: state.category,
+      imagePaths: state.imagePaths,
+    );
+    emit(
+      state.copyWith(submissionStatus: CreatePostSubmissionStatus.submitting),
+    );
     try {
-      await createPostUseCase(CreatePostRequest(
-        content: state.content,
-        category: state.category,
-        imagePath: null,  ));
-      emit(state.copyWith(submissionStatus: CreatePostSubmissionStatus.success));
+      await createPostUseCase(request);
+      emit(
+        state.copyWith(submissionStatus: CreatePostSubmissionStatus.success),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        submissionStatus: CreatePostSubmissionStatus.failure,
-        errorMessage: 'failed to post, try again.',
-      ));
+      final message = e is FirebaseException
+          ? (e.code == 'permission-denied'
+                ? 'You do not have permission to post. Please try again later.'
+                : 'Could not save the post. Check your connection and try again.')
+          : e.toString().replaceFirst('Exception: ', '');
+      emit(
+        state.copyWith(
+          submissionStatus: CreatePostSubmissionStatus.failure,
+          errorMessage: message,
+        ),
+      );
     }
   }
 }
