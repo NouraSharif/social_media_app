@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:social_media_app/core/constants/app_assets.dart';
+import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_cubit.dart';
@@ -80,7 +82,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
         listener: (context, state) {
           if (state is ProfileSuccess) {
             AppSnackBar.showSuccess(context, 'Profile saved successfully.');
-            //Go To Home
+            context.go(AppRoutes.home);
           }
           if (state is ProfileFailure) {
             AppSnackBar.showError(context, state.message);
@@ -183,7 +185,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
                       SkipButton(
                         onPressed: () {
-                          //Go To Home
+                          context.go(AppRoutes.home);
                         },
                       ),
                     ],

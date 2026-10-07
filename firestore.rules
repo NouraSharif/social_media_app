@@ -8,6 +8,80 @@ service cloud.firestore {
           && request.auth.uid == userId;
     }
 
+    match /posts/{postId} {
+      function likeChange() {
+        let path = /databases/$(database)/documents/posts/$(postId)/likes/$(request.auth.uid);
+        let before = resource.data.get('likesCount', 0);
+        let after = request.resource.data.get('likesCount', 0);
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount'])
+            && after is int && after >= 0
+            && ((!exists(path) && existsAfter(path) && after == before + 1)
+                || (exists(path) && !existsAfter(path) && after == before - 1));
+      }
+
+      function commentChange() {
+        let id = request.resource.data.get('lastCommentId', '__none__');
+        let path = /databases/$(database)/documents/posts/$(postId)/comments/$(id);
+        return id is string
+            && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['commentsCount', 'lastCommentId'])
+            && request.resource.data.commentsCount is int
+            && request.resource.data.commentsCount == resource.data.get('commentsCount', 0) + 1
+            && !exists(path) && existsAfter(path)
+            && getAfter(path).data.authorId == request.auth.uid;
+      }
+
+      allow read: if true;
+      allow create: if request.auth != null
+          && request.resource.data.authorId == request.auth.uid
+          && request.resource.data.get('likesCount', 0) is int
+          && request.resource.data.get('commentsCount', 0) is int
+          && request.resource.data.get('likesCount', 0) == 0
+          && request.resource.data.get('commentsCount', 0) == 0
+          && !('lastCommentId' in request.resource.data);
+      allow update: if request.auth != null && (likeChange() || commentChange());
+      allow delete: if false;
+
+      match /likes/{uid} {
+        function counterChanged(delta) {
+          let path = /databases/$(database)/documents/posts/$(postId);
+          return exists(path)
+              && getAfter(path).data.likesCount == get(path).data.get('likesCount', 0) + delta;
+        }
+        allow read: if true;
+        allow create: if request.auth != null && request.auth.uid == uid
+            && request.resource.data.keys().hasOnly(['createdAt'])
+            && request.resource.data.createdAt == request.time
+            && counterChanged(1);
+        allow delete: if request.auth != null && request.auth.uid == uid
+            && counterChanged(-1);
+        allow update: if false;
+      }
+
+      match /comments/{commentId} {
+        function counterChanged() {
+          let path = /databases/$(database)/documents/posts/$(postId);
+          return exists(path)
+              && getAfter(path).data.commentsCount == get(path).data.get('commentsCount', 0) + 1
+              && getAfter(path).data.lastCommentId == commentId;
+        }
+        allow read: if true;
+        allow create: if request.auth != null
+            && request.resource.data.keys().hasOnly(['authorId', 'userName', 'userPhotoUrl', 'content', 'createdAt'])
+            && request.resource.data.authorId == request.auth.uid
+            && request.resource.data.userName is string
+            && request.resource.data.userName.size() > 0
+            && (request.resource.data.userPhotoUrl == null || request.resource.data.userPhotoUrl is string)
+            && request.resource.data.content is string
+            && request.resource.data.content.size() > 0
+            && request.resource.data.content.size() <= 2000
+            && request.resource.data.content.matches('[\\s\\S]*[^\\s][\\s\\S]*')
+            && request.resource.data.createdAt == request.time
+            && counterChanged();
+        allow update, delete: if false;
+      }
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
