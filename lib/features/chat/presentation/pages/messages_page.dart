@@ -5,7 +5,6 @@ import 'package:social_media_app/core/constants/app_assets.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
-import 'package:social_media_app/features/chat/presentation/pages/chat_page.dart';
 import 'package:social_media_app/features/chat/presentation/pages/new_message_page.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/app_icon_button.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/chat_list_item.dart';
@@ -49,22 +48,7 @@ class _MessagesPageState extends State<MessagesPage>
           // dispatch delete event
         },
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return ChatPage(
-                  displayName: 'Noura Hassanin',
-                  username: 'nourasharif',
-                  userImage: Assets.imagesPerson,
-                  messageText: 'How are you ,miss you',
-                  messageTime: '1 hour',
-                  isActive: true,
-                  currentUser: false,
-                );
-              },
-            ),
-          );
+          context.push(AppRoutes.chat);
         },
         unreadCount: 2,
       ),

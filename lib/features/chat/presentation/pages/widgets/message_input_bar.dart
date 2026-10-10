@@ -26,12 +26,11 @@ class MessageInputBar extends StatelessWidget {
           child: TextField(
             controller: controller,
             keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.send,
             onSubmitted: (_) => onSendPressed(),
+            onEditingComplete: () {},
             maxLines: null,
             minLines: 1,
-            onTapOutside: (_) {
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
             decoration: InputDecoration(
               filled: true,
               fillColor: AppColors.surfaceLight,

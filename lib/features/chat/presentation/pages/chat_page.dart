@@ -1,8 +1,16 @@
 import 'dart:typed_data';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
+import 'package:social_media_app/core/theme/app_text_styles.dart';
+import 'package:social_media_app/core/widgets/app_snack_bar.dart';
+import 'package:social_media_app/features/chat/domain/entities/message.dart';
+import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_bloc.dart';
+import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_event.dart';
+import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_state.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/chat_user_header.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/document_upload_bottom_sheet.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/message_bubble.dart';
@@ -11,51 +19,65 @@ import 'package:social_media_app/features/chat/presentation/pages/widgets/messag
 class ChatPage extends StatefulWidget {
   const ChatPage({
     super.key,
-    required this.userImage,
-    required this.displayName,
-    required this.username,
-    required this.messageText,
-    required this.messageTime,
-    required this.isActive,
-    required this.currentUser,
+    // required this.chatId,
+    // required this.displayName,
+    // required this.username,
+    // required this.currentUser,
+    // required this.receiverId,
+    // required this.userImage,
+    // required this.isActive,
   });
-
-  final String? userImage;
-  final String displayName;
-  final String username;
-  final String messageText;
-  final String messageTime;
-  final bool isActive;
-  final bool currentUser;
+  //final String chatId;
+  // final String displayName;
+  // final String username;
+  // final bool currentUser;
+  // final String receiverId;
+  // final String userImage;
+  // final bool isActive;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final TextEditingController messageController = TextEditingController();
-
+  final messageController = TextEditingController();
   Uint8List? selectedImage;
-
-  final List<MessageBubble> messages = [];
 
   @override
   void initState() {
     super.initState();
-
-    messages.add(
-      MessageBubble(
-        isCurrentUser: widget.currentUser,
-        messageText: widget.messageText,
-        messageTime: widget.messageTime,
-      ),
-    );
+    context.read<ChatBloc>().add(GetMessages(chatId: '1'));
   }
 
   @override
   void dispose() {
     messageController.dispose();
     super.dispose();
+  }
+
+  void sendMessage() {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      AppSnackBar.showError(context, 'Please sign in to send a message.');
+      return;
+    }
+    final currentUserId = currentUser.uid;
+
+    final text = messageController.text.trim();
+    if (text.isEmpty) return;
+
+    context.read<ChatBloc>().add(
+      SendMessage(
+        message: Message(
+          senderId: currentUserId,
+          receiverId: 'srAojhGTrvN3c7BQM93FQtFtkaV2',
+          text: text,
+          image: null,
+          timestamp: DateTime.now(),
+        ),
+      ),
+    );
+    messageController.clear();
   }
 
   Future<void> openAttachmentBottomSheet() async {
@@ -77,65 +99,73 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  void sendMessage() {
-    final String message = messageController.text.trim();
-
-    if (message.isEmpty && selectedImage == null) {
-      return;
-    }
-
-    setState(() {
-      messages.add(
-        MessageBubble(
-          isCurrentUser: true,
-          messageText: message,
-          messageTime: '10:45 AM',
-          image: selectedImage,
-        ),
-      );
-
-      messageController.clear();
-      selectedImage = null;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: ChatUserHeader(
-          userImage: widget.userImage,
-          displayName: widget.displayName,
-          username: widget.username,
-          isActive: widget.isActive,
+          userImage: null,
+          displayName: 'Noura Hassanin',
+          username: 'nourasharif',
+          isActive: true,
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ListView.builder(
-                itemCount: messages.length,
-                itemBuilder: (context, i) {
-                  return messages[i];
-                },
+      body: BlocConsumer<ChatBloc, ChatState>(
+        listener: (context, state) {
+          if (state is ChatFailure) {
+            debugPrint('CHAT ERROR: ${state.errorMessage}');
+            AppSnackBar.showError(context, state.errorMessage);
+          }
+        },
+        builder: (context, state) => Column(
+          children: [
+            Expanded(
+              child: state is ChatLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : state is ChatLoaded
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: state.messages.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No messages yet. Say hello! 👋',
+                                style: AppTextStyles.body,
+                              ),
+                            )
+                          : ListView.builder(
+                              reverse: true,
+                              itemCount: state.messages.length,
+                              itemBuilder: (context, i) {
+                                final message = state.messages[i];
+
+                                return MessageBubble(
+                                  isCurrentUser:
+                                      message.senderId ==
+                                      FirebaseAuth.instance.currentUser?.uid,
+                                  messageText: message.text,
+                                  messageTime:
+                                      message.timestamp ?? DateTime.now(),
+                                  image: message.image,
+                                );
+                              },
+                            ),
+                    )
+                  : const SizedBox.expand(),
+            ),
+
+            Container(
+              height: 80,
+              color: AppColors.white,
+              padding: const EdgeInsets.all(10),
+              child: MessageInputBar(
+                controller: messageController,
+                selectedImage: selectedImage,
+                onAttachmentPressed: openAttachmentBottomSheet,
+                onSendPressed: sendMessage,
               ),
             ),
-          ),
-
-          Container(
-            height: 80,
-            color: AppColors.white,
-            padding: const EdgeInsets.all(10),
-            child: MessageInputBar(
-              controller: messageController,
-              selectedImage: selectedImage,
-              onAttachmentPressed: openAttachmentBottomSheet,
-              onSendPressed: sendMessage,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -16,4 +16,5 @@ class AppRoutes {
   // Chatting
   static const String messages = '/messages';
   static const String searchChat = '/searchchat';
+  static const String chat = '/chat';
 }

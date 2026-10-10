@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:social_media_app/core/constants/app_assets.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
+import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
-import 'package:social_media_app/features/chat/presentation/pages/chat_page.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/new_message_user_item.dart';
 
 class NewMessagePage extends StatefulWidget {
@@ -31,20 +32,7 @@ class _NewMessagePageState extends State<NewMessagePage> {
         displayName: 'Alaa Abu Jehad',
         username: '@jehad2026',
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ChatPage(
-                currentUser: true,
-                userImage: Assets.imagesPerson,
-                displayName: 'Alaa Abu Jehad',
-                username: '@jehad2026',
-                messageText: 'jfdsokm',
-                messageTime: '15 min',
-                isActive: true,
-              ),
-            ),
-          );
+          context.push(AppRoutes.chat);
         },
       ),
     ];

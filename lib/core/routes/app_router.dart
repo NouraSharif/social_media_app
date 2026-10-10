@@ -12,6 +12,8 @@ import 'package:social_media_app/features/auth/presentation/pages/reset_password
 import 'package:social_media_app/features/auth/presentation/pages/signup/signup_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/splash/splash_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/verification/verification_page.dart';
+import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_bloc.dart';
+import 'package:social_media_app/features/chat/presentation/pages/chat_page.dart';
 import 'package:social_media_app/features/chat/presentation/pages/messages_page.dart';
 import 'package:social_media_app/features/chat/presentation/pages/search_chat_page.dart';
 import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_cubit.dart';
@@ -98,6 +100,16 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.searchChat,
       builder: (context, builder) => SearchChatPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.chat,
+      builder: (context, builder) => BlocProvider(
+        create: (context) => ChatBloc(
+          sendMessageUseCase: sendMessageUseCase,
+          getMessagesUseCase: getMessagesUseCase,
+        ),
+        child: ChatPage(),
+      ),
     ),
   ],
 );
