@@ -107,6 +107,7 @@ final GoRouter appRouter = GoRouter(
         create: (context) => ChatBloc(
           sendMessageUseCase: sendMessageUseCase,
           getMessagesUseCase: getMessagesUseCase,
+          uploadChatImageUseCase: uploadChatImageUseCase,
         ),
         child: ChatPage(),
       ),

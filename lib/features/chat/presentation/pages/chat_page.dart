@@ -17,31 +17,22 @@ import 'package:social_media_app/features/chat/presentation/pages/widgets/messag
 import 'package:social_media_app/features/chat/presentation/pages/widgets/message_input_bar.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({
-    super.key,
-    // required this.chatId,
-    // required this.displayName,
-    // required this.username,
-    // required this.currentUser,
-    // required this.receiverId,
-    // required this.userImage,
-    // required this.isActive,
-  });
-  //final String chatId;
-  // final String displayName;
-  // final String username;
-  // final bool currentUser;
-  // final String receiverId;
-  // final String userImage;
-  // final bool isActive;
+  const ChatPage({super.key});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final messageController = TextEditingController();
+  final TextEditingController messageController = TextEditingController();
+
   Uint8List? selectedImage;
+  String? selectedImageName;
+
+  bool _awaitingSendResult = false;
+  bool _observedSending = false;
+
+  final FocusNode _messageFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -52,35 +43,48 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void dispose() {
     messageController.dispose();
+    _messageFocusNode.dispose();
     super.dispose();
   }
 
   void sendMessage() {
     final currentUser = FirebaseAuth.instance.currentUser;
+
     if (currentUser == null) {
       AppSnackBar.showError(context, 'Please sign in to send a message.');
       return;
     }
-    final currentUserId = currentUser.uid;
+
+    if (_awaitingSendResult) return;
 
     final text = messageController.text.trim();
-    if (text.isEmpty) return;
+
+    if (text.isEmpty && selectedImage == null) return;
+
+    _messageFocusNode.requestFocus();
+
+    _awaitingSendResult = true;
+    _observedSending = false;
 
     context.read<ChatBloc>().add(
       SendMessage(
         message: Message(
-          senderId: currentUserId,
+          senderId: currentUser.uid,
+          //receiverId: 'kIvHURWMDvOqslhmJMKXreVb8Bn2',
           receiverId: 'srAojhGTrvN3c7BQM93FQtFtkaV2',
           text: text,
           image: null,
           timestamp: DateTime.now(),
         ),
+        imageBytes: selectedImage,
+        imageName: selectedImageName,
       ),
     );
-    messageController.clear();
   }
 
   Future<void> openAttachmentBottomSheet() async {
+    if (_awaitingSendResult) return;
+
     final XFile? result = await showModalBottomSheet<XFile>(
       context: context,
       builder: (context) {
@@ -96,6 +100,47 @@ class _ChatPageState extends State<ChatPage> {
 
     setState(() {
       selectedImage = bytes;
+      selectedImageName = result.name;
+    });
+  }
+
+  void _handleChatState(ChatState state) {
+    if (state is ChatFailure) {
+      AppSnackBar.showError(context, state.errorMessage);
+      return;
+    }
+    if (state is! ChatLoaded) return;
+    if (state.isSending) {
+      _observedSending = true;
+      return;
+    }
+
+    if (!_awaitingSendResult || !_observedSending) return;
+
+    _awaitingSendResult = false;
+    _observedSending = false;
+
+    if (state.sendError != null) {
+      AppSnackBar.showError(context, state.sendError!);
+      return;
+    }
+
+    messageController.clear();
+
+    setState(() {
+      selectedImage = null;
+      selectedImageName = null;
+    });
+
+    _messageFocusNode.requestFocus();
+  }
+
+  void removeSelectedImage() {
+    if (_awaitingSendResult) return;
+
+    setState(() {
+      selectedImage = null;
+      selectedImageName = null;
     });
   }
 
@@ -112,10 +157,7 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: BlocConsumer<ChatBloc, ChatState>(
         listener: (context, state) {
-          if (state is ChatFailure) {
-            debugPrint('CHAT ERROR: ${state.errorMessage}');
-            AppSnackBar.showError(context, state.errorMessage);
-          }
+          _handleChatState(state);
         },
         builder: (context, state) => Column(
           children: [
@@ -152,7 +194,6 @@ class _ChatPageState extends State<ChatPage> {
                     )
                   : const SizedBox.expand(),
             ),
-
             Container(
               height: 80,
               color: AppColors.white,
@@ -160,7 +201,10 @@ class _ChatPageState extends State<ChatPage> {
               child: MessageInputBar(
                 controller: messageController,
                 selectedImage: selectedImage,
+                isSending: state is ChatLoaded && state.isSending,
+                focusNode: _messageFocusNode,
                 onAttachmentPressed: openAttachmentBottomSheet,
+                onRemoveImage: removeSelectedImage,
                 onSendPressed: sendMessage,
               ),
             ),

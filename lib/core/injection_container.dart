@@ -12,10 +12,13 @@ import 'package:social_media_app/features/auth/domain/usecases/signup.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verification.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verify_reset_otp.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/verification/verification_cubit.dart';
+import 'package:social_media_app/features/chat/data/datasource/chat_image_storage_data_source_impl.dart';
 import 'package:social_media_app/features/chat/data/datasource/chat_remote_data_source_impl.dart';
+import 'package:social_media_app/features/chat/data/repository/chat_image_storage_repository_impl.dart';
 import 'package:social_media_app/features/chat/data/repository/chat_repository_impl.dart';
 import 'package:social_media_app/features/chat/domain/usecases/get_messages.dart';
 import 'package:social_media_app/features/chat/domain/usecases/send_message.dart';
+import 'package:social_media_app/features/chat/domain/usecases/upload_chat_image_usecase.dart';
 import 'package:social_media_app/features/profile/data/datasource/profile_remote_data_source_impl.dart';
 import 'package:social_media_app/features/profile/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/features/profile/domain/usecase/get_profile.dart';
@@ -80,3 +83,15 @@ final chatDataSource = ChatRemoteDataSourceImpl(firestore, firebaseAuth);
 final chatRepository = ChatRepositoryImpl(chatDataSource);
 final sendMessageUseCase = SendMessageUseCase(chatRepository);
 final getMessagesUseCase = GetMessagesUseCase(chatRepository);
+final chatImageStorageDataSource = ChatImageStorageDataSourceImpl(
+  Supabase.instance.client,
+  firebaseAuth,
+);
+
+final chatImageStorageRepository = ChatImageStorageRepositoryImpl(
+  chatImageStorageDataSource,
+);
+
+final uploadChatImageUseCase = UploadChatImageUseCase(
+  chatImageStorageRepository,
+);
