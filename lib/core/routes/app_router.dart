@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:social_media_app/core/injection_container.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
+import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/verification/verification_cubit.dart';
 import 'package:social_media_app/features/auth/presentation/pages/auth/auth_page.dart';
@@ -37,6 +40,7 @@ final GoRouter appRouter = GoRouter(
           sendResetOtpUseCase,
           verifyResetUseCase,
           resetPasswordUseCase,
+          createBasicProfile,
         ),
         child: ResetPasswordPage(),
       ),
@@ -50,6 +54,7 @@ final GoRouter appRouter = GoRouter(
           sendResetOtpUseCase,
           verifyResetUseCase,
           resetPasswordUseCase,
+          createBasicProfile,
         ),
         child: CheckEmailPage(),
       ),
@@ -63,6 +68,7 @@ final GoRouter appRouter = GoRouter(
           sendResetOtpUseCase,
           verifyResetUseCase,
           resetPasswordUseCase,
+          createBasicProfile,
         ),
         child: NewPasswordPage(),
       ),
@@ -76,16 +82,28 @@ final GoRouter appRouter = GoRouter(
         );
       },
     ),
+
     GoRoute(
       path: AppRoutes.completeProfile,
       builder: (context, state) {
+        final user = FirebaseAuth.instance.currentUser;
+
+        if (user == null) {
+          return const Scaffold(
+            body: Center(
+              child: Text('Please log in first.', style: AppTextStyles.body),
+            ),
+          );
+        }
+
         return BlocProvider(
           create: (context) => ProfileCubit(
             saveProfile: saveProfile,
             getProfile: getProfile,
             uploadProfileImage: uploadProfileImage,
+            updateProfileUseCase: updateProfile,
           ),
-          child: CompleteProfilePage(),
+          child: CompleteProfilePage(uid: user.uid),
         );
       },
     ),

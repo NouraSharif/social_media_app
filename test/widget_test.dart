@@ -1,30 +1,88 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:social_media_app/main.dart';
+import 'package:social_media_app/features/profile/presentation/validators/profile_validators.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('ProfileValidators', () {
+    group('username', () {
+      test('returns error when username is empty', () {
+        expect(ProfileValidators.username(''), 'Username is required.');
+      });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      test('accepts a valid username', () {
+        expect(ProfileValidators.username('noura_123'), isNull);
+      });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      test('accepts username with a leading @', () {
+        expect(ProfileValidators.username('@noura_123'), isNull);
+      });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      test('rejects uppercase letters', () {
+        expect(
+          ProfileValidators.username('Noura'),
+          'Use only lowercase letters, numbers, and underscores.',
+        );
+      });
+
+      test('rejects spaces and special characters', () {
+        expect(
+          ProfileValidators.username('noura hassanin'),
+          'Use only lowercase letters, numbers, and underscores.',
+        );
+      });
+    });
+
+    group('displayName', () {
+      test('returns error when value is empty', () {
+        expect(ProfileValidators.displayName('  '), 'Display name is required');
+      });
+
+      test('accepts a non-empty value', () {
+        expect(ProfileValidators.displayName('Noura Hassanin'), isNull);
+      });
+    });
+
+    group('bio', () {
+      test('allows an empty bio', () {
+        expect(ProfileValidators.bio(''), isNull);
+      });
+
+      test('accepts bio up to 150 characters', () {
+        expect(ProfileValidators.bio('a' * 150), isNull);
+      });
+
+      test('rejects bio longer than 150 characters', () {
+        expect(
+          ProfileValidators.bio('a' * 151),
+          'Bio must not exceed 150 characters',
+        );
+      });
+    });
+
+    group('dateOfBirth', () {
+      test('returns error when date is empty', () {
+        expect(ProfileValidators.dateOfBirth(''), 'Date of birth is required');
+      });
+
+      test('accepts a non-empty date', () {
+        expect(ProfileValidators.dateOfBirth('2000-01-01'), isNull);
+      });
+    });
+
+    group('chasingDescription', () {
+      test('allows an empty description', () {
+        expect(ProfileValidators.chasingDescription(''), isNull);
+      });
+
+      test('accepts description up to 500 characters', () {
+        expect(ProfileValidators.chasingDescription('a' * 500), isNull);
+      });
+
+      test('rejects description longer than 500 characters', () {
+        expect(
+          ProfileValidators.chasingDescription('a' * 501),
+          'Description must not exceed 500 characters',
+        );
+      });
+    });
   });
 }
