@@ -11,11 +11,16 @@ class PersonalInfoSection extends StatelessWidget {
     required this.controllers,
     required this.onGenderChanged,
     required this.onSelectDate,
+    this.usernameError,
+    this.onUsernameChanged,
   });
 
   final ProfileFormControllers controllers;
   final ValueChanged<String> onGenderChanged;
   final VoidCallback onSelectDate;
+
+  final String? usernameError;
+  final ValueChanged<String>? onUsernameChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +31,8 @@ class PersonalInfoSection extends StatelessWidget {
           hintText: '@a.b',
           controller: controllers.username,
           validator: ProfileValidators.username,
+          errorText: usernameError,
+          onChanged: onUsernameChanged,
         ),
 
         const SizedBox(height: 15),

@@ -27,3 +27,9 @@ class ProfileFailure extends ProfileState {
   @override
   List<Object?> get props => [message];
 }
+
+class ProfileUpdateSuccess extends ProfileState {
+  final Profile profile;
+
+  const ProfileUpdateSuccess(this.profile);
+}
