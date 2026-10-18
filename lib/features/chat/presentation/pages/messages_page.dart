@@ -1,13 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:social_media_app/core/constants/app_assets.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
+import 'package:social_media_app/core/widgets/app_snack_bar.dart';
+import 'package:social_media_app/features/chat/data/model/chat_model.dart';
+import 'package:social_media_app/features/chat/presentation/bloc/chats/chats_cubit.dart';
+import 'package:social_media_app/features/chat/presentation/bloc/chats/chats_state.dart';
 import 'package:social_media_app/features/chat/presentation/pages/new_message_page.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/app_icon_button.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/chat_list_item.dart';
+import 'package:social_media_app/core/widgets/empty_state_message.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/tab_button.dart';
 
 class MessagesPage extends StatefulWidget {
@@ -26,6 +31,8 @@ class _MessagesPageState extends State<MessagesPage>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() => setState(() {}));
+
+    context.read<ChatsCubit>().getChats();
   }
 
   @override
@@ -36,23 +43,6 @@ class _MessagesPageState extends State<MessagesPage>
 
   @override
   Widget build(BuildContext context) {
-    final List<ChatListItem> chats = [
-      ChatListItem(
-        userImage: Assets.imagesPerson,
-        messageId: 0,
-        displayName: 'Noura Hassanin',
-        messageText: 'how Are You ,miss you',
-        isActive: true,
-        messageTime: '15 min',
-        onDelete: () {
-          // dispatch delete event
-        },
-        onTap: () {
-          context.push(AppRoutes.chat);
-        },
-        unreadCount: 2,
-      ),
-    ];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Messages'),
@@ -118,20 +108,68 @@ class _MessagesPageState extends State<MessagesPage>
               ),
             ),
             Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  // Inbox
-                  ListView.separated(
-                    padding: const EdgeInsets.only(top: 10),
-                    separatorBuilder: (context, i) =>
-                        const SizedBox(height: 15),
-                    itemCount: chats.length,
-                    itemBuilder: (context, i) => chats[i],
-                  ),
-                  // Requests
-                  const Center(child: Text('No requests')),
-                ],
+              child: BlocConsumer<ChatsCubit, ChatsState>(
+                listener: (context, state) {
+                  if (state is ChatsFailure) {
+                    AppSnackBar.showError(context, state.message);
+                  }
+                },
+
+                builder: (BuildContext context, state) => TabBarView(
+                  controller: _tabController,
+                  children: [
+                    // Inbox
+                    state is ChatsLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : state is ChatsLoaded
+                        ? state.chats.isEmpty
+                              ? const EmptyStateMessage(
+                                  message: 'Start a conversation and connect with others!',
+                                )
+                              : ListView.separated(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  separatorBuilder: (context, i) =>
+                                      const SizedBox(height: 15),
+                                  itemCount: state.chats.length,
+                                  itemBuilder: (context, i) {
+                                    final chat = state.chats[i];
+                                    return ChatListItem(
+                                      chatModel: ChatModel(
+                                        chatId: chat.chatId,
+                                        otherUserId: chat.otherUserId,
+                                        image: chat.image,
+                                        displayName: chat.displayName,
+                                        lastMessage: chat.lastMessage,
+                                        lastMessageAt: chat.lastMessageAt,
+                                        lastMessageSenderId:
+                                            chat.lastMessageSenderId,
+                                      ),
+                                      isActive: true,
+                                      unreadCount: 0,
+                                      onDelete: () {
+                                        context.read<ChatsCubit>().deleteChat(
+                                          chat.chatId,
+                                        );
+                                      },
+                                      onTap: () {
+                                        context.push(
+                                          AppRoutes.chat,
+                                          extra: {
+                                            'chatId': chat.chatId,
+                                            'otherUserId': chat.otherUserId,
+                                            'displayName': chat.displayName,
+                                            'image': chat.image,
+                                          },
+                                        );
+                                      },
+                                    );
+                                  },
+                                )
+                        : const SizedBox.expand(),
+                    // Requests
+                    const EmptyStateMessage(message: 'No requests'),
+                  ],
+                ),
               ),
             ),
           ],

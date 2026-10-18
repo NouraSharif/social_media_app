@@ -1,4 +1,4 @@
-import 'package:social_media_app/features/chat/data/datasource/chat_remote_data_source.dart';
+import 'package:social_media_app/features/chat/data/datasource/chat/chat_remote_data_source.dart';
 import 'package:social_media_app/features/chat/domain/entities/message.dart';
 import 'package:social_media_app/features/chat/domain/repository/chat_repository.dart';
 

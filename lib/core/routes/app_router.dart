@@ -13,6 +13,7 @@ import 'package:social_media_app/features/auth/presentation/pages/signup/signup_
 import 'package:social_media_app/features/auth/presentation/pages/splash/splash_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/verification/verification_page.dart';
 import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_bloc.dart';
+import 'package:social_media_app/features/chat/presentation/bloc/chats/chats_cubit.dart';
 import 'package:social_media_app/features/chat/presentation/pages/chat_page.dart';
 import 'package:social_media_app/features/chat/presentation/pages/messages_page.dart';
 import 'package:social_media_app/features/chat/presentation/pages/search_chat_page.dart';
@@ -95,7 +96,13 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.messages,
-      builder: (context, builder) => MessagesPage(),
+      builder: (context, builder) => BlocProvider(
+        create: ((context) => ChatsCubit(
+          getChatsUseCase: getChatsUseCase,
+          deleteChatUseCase: deleteChatUseCase,
+        )),
+        child: MessagesPage(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.searchChat,
@@ -103,14 +110,23 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.chat,
-      builder: (context, builder) => BlocProvider(
-        create: (context) => ChatBloc(
-          sendMessageUseCase: sendMessageUseCase,
-          getMessagesUseCase: getMessagesUseCase,
-          uploadChatImageUseCase: uploadChatImageUseCase,
-        ),
-        child: ChatPage(),
-      ),
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
+
+        return BlocProvider(
+          create: (context) => ChatBloc(
+            sendMessageUseCase: sendMessageUseCase,
+            getMessagesUseCase: getMessagesUseCase,
+            uploadChatImageUseCase: uploadChatImageUseCase,
+          ),
+          child: ChatPage(
+            chatId: data['chatId'] as String,
+            otherUserId: data['otherUserId'] as String,
+            displayName: data['displayName'] as String,
+            image: data['image'] as String?,
+          ),
+        );
+      },
     ),
   ],
 );

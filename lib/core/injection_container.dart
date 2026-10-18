@@ -12,13 +12,17 @@ import 'package:social_media_app/features/auth/domain/usecases/signup.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verification.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verify_reset_otp.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/verification/verification_cubit.dart';
-import 'package:social_media_app/features/chat/data/datasource/chat_image_storage_data_source_impl.dart';
-import 'package:social_media_app/features/chat/data/datasource/chat_remote_data_source_impl.dart';
+import 'package:social_media_app/features/chat/data/datasource/chat/chat_image_storage_data_source_impl.dart';
+import 'package:social_media_app/features/chat/data/datasource/chat/chat_remote_data_source_impl.dart';
+import 'package:social_media_app/features/chat/data/datasource/chats/chats_remote_data_source_impl.dart';
 import 'package:social_media_app/features/chat/data/repository/chat_image_storage_repository_impl.dart';
 import 'package:social_media_app/features/chat/data/repository/chat_repository_impl.dart';
-import 'package:social_media_app/features/chat/domain/usecases/get_messages.dart';
-import 'package:social_media_app/features/chat/domain/usecases/send_message.dart';
-import 'package:social_media_app/features/chat/domain/usecases/upload_chat_image_usecase.dart';
+import 'package:social_media_app/features/chat/data/repository/chats_repository_impl.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chats/delete_chat.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chats/get_chats.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chat/get_messages.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chat/send_message.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chat/upload_chat_image_usecase.dart';
 import 'package:social_media_app/features/profile/data/datasource/profile_remote_data_source_impl.dart';
 import 'package:social_media_app/features/profile/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/features/profile/domain/usecase/get_profile.dart';
@@ -79,6 +83,14 @@ final saveProfile = SaveProfile(profileRepository);
 final uploadProfileImage = UploadProfileImage(profileRepository);
 
 // Chat
+final chatsRemoteDataSource = ChatsRemoteDataSourceImpl(
+  firebaseAuth,
+  firestore,
+);
+final chatsRepository = ChatsRepositoryImpl(chatsRemoteDataSource);
+final getChatsUseCase = GetChatsUseCase(chatsRepository);
+final deleteChatUseCase = DeleteChatUseCase(chatsRepository);
+
 final chatDataSource = ChatRemoteDataSourceImpl(firestore, firebaseAuth);
 final chatRepository = ChatRepositoryImpl(chatDataSource);
 final sendMessageUseCase = SendMessageUseCase(chatRepository);

@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import '../../domain/repository/chat_image_storage_repository.dart';
-import '../datasource/chat_image_storage_data_source.dart';
+import '../datasource/chat/chat_image_storage_data_source.dart';
 
 class ChatImageStorageRepositoryImpl implements ChatImageStorageRepository {
   final ChatImageStorageDataSource _dataSource;

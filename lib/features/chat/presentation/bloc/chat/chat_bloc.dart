@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/features/chat/domain/entities/message.dart';
-import 'package:social_media_app/features/chat/domain/usecases/get_messages.dart';
-import 'package:social_media_app/features/chat/domain/usecases/send_message.dart';
-import 'package:social_media_app/features/chat/domain/usecases/upload_chat_image_usecase.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chat/get_messages.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chat/send_message.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chat/upload_chat_image_usecase.dart';
 import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_event.dart';
 import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_state.dart';
 

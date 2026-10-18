@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import '../repository/chat_image_storage_repository.dart';
+import '../../../domain/repository/chat_image_storage_repository.dart';
 
 class UploadChatImageUseCase {
   final ChatImageStorageRepository _repository;

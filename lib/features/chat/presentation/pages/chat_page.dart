@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
-import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 import 'package:social_media_app/features/chat/domain/entities/message.dart';
 import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_bloc.dart';
@@ -13,18 +12,30 @@ import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_event
 import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_state.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/chat_user_header.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/document_upload_bottom_sheet.dart';
+import 'package:social_media_app/core/widgets/empty_state_message.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/message_bubble.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/message_input_bar.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  final String chatId;
+  final String otherUserId;
+  final String displayName;
+  final String? image;
+
+  const ChatPage({
+    super.key,
+    required this.chatId,
+    required this.otherUserId,
+    required this.displayName,
+    this.image,
+  });
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final TextEditingController messageController = TextEditingController();
+  final _messageController = TextEditingController();
 
   Uint8List? selectedImage;
   String? selectedImageName;
@@ -37,12 +48,12 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    context.read<ChatBloc>().add(GetMessages(chatId: '1'));
+    context.read<ChatBloc>().add(GetMessages(chatId: widget.chatId));
   }
 
   @override
   void dispose() {
-    messageController.dispose();
+    _messageController.dispose();
     _messageFocusNode.dispose();
     super.dispose();
   }
@@ -57,7 +68,7 @@ class _ChatPageState extends State<ChatPage> {
 
     if (_awaitingSendResult) return;
 
-    final text = messageController.text.trim();
+    final text = _messageController.text.trim();
 
     if (text.isEmpty && selectedImage == null) return;
 
@@ -70,8 +81,7 @@ class _ChatPageState extends State<ChatPage> {
       SendMessage(
         message: Message(
           senderId: currentUser.uid,
-          //receiverId: 'kIvHURWMDvOqslhmJMKXreVb8Bn2',
-          receiverId: 'srAojhGTrvN3c7BQM93FQtFtkaV2',
+          receiverId: widget.otherUserId,
           text: text,
           image: null,
           timestamp: DateTime.now(),
@@ -125,7 +135,7 @@ class _ChatPageState extends State<ChatPage> {
       return;
     }
 
-    messageController.clear();
+    _messageController.clear();
 
     setState(() {
       selectedImage = null;
@@ -149,8 +159,8 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: ChatUserHeader(
-          userImage: null,
-          displayName: 'Noura Hassanin',
+          userImage: widget.image,
+          displayName: widget.displayName,
           username: 'nourasharif',
           isActive: true,
         ),
@@ -168,11 +178,8 @@ class _ChatPageState extends State<ChatPage> {
                   ? Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: state.messages.isEmpty
-                          ? Center(
-                              child: Text(
-                                'No messages yet. Say hello! 👋',
-                                style: AppTextStyles.body,
-                              ),
+                          ? const EmptyStateMessage(
+                              message: 'No messages yet. Say hello! 👋',
                             )
                           : ListView.builder(
                               reverse: true,
@@ -199,7 +206,7 @@ class _ChatPageState extends State<ChatPage> {
               color: AppColors.white,
               padding: const EdgeInsets.all(10),
               child: MessageInputBar(
-                controller: messageController,
+                controller: _messageController,
                 selectedImage: selectedImage,
                 isSending: state is ChatLoaded && state.isSending,
                 focusNode: _messageFocusNode,
