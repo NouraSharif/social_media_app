@@ -14,10 +14,11 @@ import 'package:social_media_app/features/auth/domain/usecases/verify_reset_otp.
 import 'package:social_media_app/features/auth/presentation/bloc/verification/verification_cubit.dart';
 import 'package:social_media_app/features/profile/data/datasource/profile_remote_data_source_impl.dart';
 import 'package:social_media_app/features/profile/data/repository/profile_repository_impl.dart';
+import 'package:social_media_app/features/profile/domain/usecase/create_basic_profile.dart';
 import 'package:social_media_app/features/profile/domain/usecase/get_profile.dart';
 import 'package:social_media_app/features/profile/domain/usecase/save_profile.dart';
+import 'package:social_media_app/features/profile/domain/usecase/update_profile.dart';
 import 'package:social_media_app/features/profile/domain/usecase/upload_profile_image.dart';
-import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Authentication
@@ -67,12 +68,11 @@ final profileDataSource = ProfileRemoteDataSourceImpl(
 final profileRepository = ProfileRepositoryImpl(
   profileDataSource,
   firebaseAuth,
+  firestore,
 );
 final getProfile = GetProfile(profileRepository);
 final saveProfile = SaveProfile(profileRepository);
 final uploadProfileImage = UploadProfileImage(profileRepository);
-final profileCubit = ProfileCubit(
-  saveProfile: saveProfile,
-  getProfile: getProfile,
-  uploadProfileImage: uploadProfileImage,
-);
+
+final createBasicProfile = CreateBasicProfile(profileRepository);
+final updateProfile = UpdateProfile(profileRepository);
