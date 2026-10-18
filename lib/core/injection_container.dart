@@ -12,6 +12,12 @@ import 'package:social_media_app/features/auth/domain/usecases/signup.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verification.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verify_reset_otp.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/verification/verification_cubit.dart';
+import 'package:social_media_app/features/profile/data/datasource/profile_remote_data_source_impl.dart';
+import 'package:social_media_app/features/profile/data/repository/profile_repository_impl.dart';
+import 'package:social_media_app/features/profile/domain/usecase/create_basic_profile.dart';
+import 'package:social_media_app/features/profile/domain/usecase/get_profile.dart';
+import 'package:social_media_app/features/profile/domain/usecase/save_profile.dart';
+import 'package:social_media_app/features/profile/domain/usecase/update_profile.dart';
 import 'package:social_media_app/features/chat/data/datasource/chat/chat_image_storage_data_source_impl.dart';
 import 'package:social_media_app/features/chat/data/datasource/chat/chat_remote_data_source_impl.dart';
 import 'package:social_media_app/features/chat/data/datasource/chats/chats_remote_data_source_impl.dart';
@@ -23,10 +29,6 @@ import 'package:social_media_app/features/chat/domain/usecases/chats/get_chats.d
 import 'package:social_media_app/features/chat/domain/usecases/chat/get_messages.dart';
 import 'package:social_media_app/features/chat/domain/usecases/chat/send_message.dart';
 import 'package:social_media_app/features/chat/domain/usecases/chat/upload_chat_image_usecase.dart';
-import 'package:social_media_app/features/profile/data/datasource/profile_remote_data_source_impl.dart';
-import 'package:social_media_app/features/profile/data/repository/profile_repository_impl.dart';
-import 'package:social_media_app/features/profile/domain/usecase/get_profile.dart';
-import 'package:social_media_app/features/profile/domain/usecase/save_profile.dart';
 import 'package:social_media_app/features/profile/domain/usecase/upload_profile_image.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -77,10 +79,14 @@ final profileDataSource = ProfileRemoteDataSourceImpl(
 final profileRepository = ProfileRepositoryImpl(
   profileDataSource,
   firebaseAuth,
+  firestore,
 );
 final getProfile = GetProfile(profileRepository);
 final saveProfile = SaveProfile(profileRepository);
 final uploadProfileImage = UploadProfileImage(profileRepository);
+
+final createBasicProfile = CreateBasicProfile(profileRepository);
+final updateProfile = UpdateProfile(profileRepository);
 
 // Chat
 final chatsRemoteDataSource = ChatsRemoteDataSourceImpl(

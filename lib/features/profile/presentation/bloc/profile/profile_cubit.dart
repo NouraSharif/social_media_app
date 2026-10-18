@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/features/profile/domain/entities/profile.dart';
 import 'package:social_media_app/features/profile/domain/usecase/get_profile.dart';
 import 'package:social_media_app/features/profile/domain/usecase/save_profile.dart';
+import 'package:social_media_app/features/profile/domain/usecase/update_profile.dart';
 import 'package:social_media_app/features/profile/domain/usecase/upload_profile_image.dart';
 import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_state.dart';
 
@@ -9,10 +10,12 @@ class ProfileCubit extends Cubit<ProfileState> {
   final SaveProfile saveProfile;
   final GetProfile getProfile;
   final UploadProfileImage uploadProfileImage;
+  final UpdateProfile updateProfileUseCase;
   ProfileCubit({
     required this.saveProfile,
     required this.getProfile,
     required this.uploadProfileImage,
+    required this.updateProfileUseCase,
   }) : super(ProfileInitial());
 
   Future<void> save(Profile profile, {String? imagePath}) async {
@@ -45,10 +48,33 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(ProfileFailure(_getProfileErrorMessage(e)));
     }
   }
+
+  Future<void> update(Profile profile, {String? imagePath}) async {
+    try {
+      emit(ProfileLoading());
+
+      var profileToUpdate = profile;
+
+      if (imagePath != null) {
+        final imageUrl = await uploadProfileImage.call(imagePath);
+        profileToUpdate = profile.copyWith(profileImageUrl: imageUrl);
+      }
+
+      await updateProfileUseCase.call(profile: profileToUpdate);
+
+      emit(ProfileUpdateSuccess(profileToUpdate));
+    } catch (e) {
+      emit(ProfileFailure(_getProfileErrorMessage(e)));
+    }
+  }
 }
 
 String _getProfileErrorMessage(Object e) {
   final message = e.toString();
+
+  if (message.contains('Username is already taken')) {
+    return 'This username is already taken, try something else!';
+  }
 
   if (message.contains('not authenticated')) {
     return 'Please log in and try again.';
@@ -60,6 +86,10 @@ String _getProfileErrorMessage(Object e) {
 
   if (message.contains('network')) {
     return 'Please check your internet connection.';
+  }
+
+  if (message.contains('Username must start with @')) {
+    return 'Enter a valid username using @, lowercase English letters, numbers, and underscores.';
   }
 
   return 'Something went wrong. Please try again.';

@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:social_media_app/core/constants/app_assets.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import 'package:social_media_app/core/widgets/app_snack_bar.dart';
+import 'package:social_media_app/features/profile/domain/entities/profile.dart';
 import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_cubit.dart';
 import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_state.dart';
 import 'package:social_media_app/features/profile/presentation/controllers/profile_form_controllers.dart';
@@ -17,7 +18,9 @@ import 'package:social_media_app/features/profile/presentation/widgets/personal_
 import 'package:social_media_app/features/profile/presentation/widgets/skip_button.dart';
 
 class CompleteProfilePage extends StatefulWidget {
-  const CompleteProfilePage({super.key});
+  final String uid;
+
+  const CompleteProfilePage({super.key, required this.uid});
 
   @override
   State<CompleteProfilePage> createState() => _CompleteProfilePageState();
@@ -35,6 +38,25 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   String? selectedState;
   String? selectedChasingCategory;
 
+  Profile? _currentProfile;
+  String? _usernameError;
+
+  String normalizeUsername(String value) {
+    final username = value.trim().toLowerCase();
+    return username.startsWith('@') ? username : '@$username';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ProfileCubit>().get(widget.uid);
+      }
+    });
+  }
+
   @override
   void dispose() {
     controllers.dispose();
@@ -42,14 +64,19 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   }
 
   void _saveProfile() {
+    final normalizedUsername = normalizeUsername(controllers.username.text);
+
+    controllers.username.text = normalizedUsername;
+
     final profile = controllers.toProfile(
       gender: selectedGender,
       country: selectedCountry,
       state: selectedState,
       chasingCategory: selectedChasingCategory,
+      profileImageUrl: _currentProfile?.profileImageUrl,
     );
 
-    context.read<ProfileCubit>().save(
+    context.read<ProfileCubit>().update(
       profile,
       imagePath: selectedProfileImage?.path,
     );
@@ -72,18 +99,57 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     }
   }
 
+  void _fillControllers(Profile profile) {
+    _currentProfile = profile;
+
+    controllers.username.text = profile.username;
+    controllers.displayName.text = profile.displayName;
+    controllers.firstName.text = profile.firstName;
+    controllers.lastName.text = profile.lastName;
+    controllers.bio.text = profile.bio;
+    controllers.dateOfBirth.text = profile.dateOfBirth;
+    controllers.address.text = profile.address;
+    controllers.city.text = profile.city;
+    controllers.zipCode.text = profile.zipCode;
+    controllers.chasingDescription.text = profile.chasingDescription;
+
+    selectedGender = profile.gender.isEmpty ? null : profile.gender;
+    selectedCountry = profile.country.isEmpty ? null : profile.country;
+    selectedState = profile.state.isEmpty ? null : profile.state;
+    selectedChasingCategory = profile.chasingCategory.isEmpty
+        ? null
+        : profile.chasingCategory;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Complete your Profile')),
       body: BlocConsumer<ProfileCubit, ProfileState>(
         listener: (context, state) {
-          if (state is ProfileSuccess) {
-            AppSnackBar.showSuccess(context, 'Profile saved successfully.');
-            //Go To Home
+          if (state is ProfileSuccess && _currentProfile == null) {
+            setState(() {
+              _fillControllers(state.profile);
+            });
           }
+
+          if (state is ProfileUpdateSuccess) {
+            setState(() {
+              _currentProfile = state.profile;
+            });
+
+            AppSnackBar.showSuccess(context, 'Profile updated successfully.');
+          }
+
           if (state is ProfileFailure) {
-            AppSnackBar.showError(context, state.message);
+            if (state.message ==
+                'This username is already taken, try something else!') {
+              setState(() {
+                _usernameError = state.message;
+              });
+            } else {
+              AppSnackBar.showError(context, state.message);
+            }
           }
         },
         builder: (context, state) => Form(
@@ -122,6 +188,14 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
                 PersonalInfoSection(
                   controllers: controllers,
+                  usernameError: _usernameError,
+                  onUsernameChanged: (_) {
+                    if (_usernameError != null) {
+                      setState(() {
+                        _usernameError = null;
+                      });
+                    }
+                  },
                   onGenderChanged: (String value) {
                     setState(() {
                       selectedGender = value;
@@ -172,6 +246,14 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                           text: 'Save',
                           isLoading: state is ProfileLoading,
                           onPressed: () {
+                            if (_currentProfile == null) {
+                              AppSnackBar.showWarning(
+                                context,
+                                'Please wait until your profile is loaded.',
+                              );
+                              return;
+                            }
+
                             if (_formKey.currentState!.validate()) {
                               _saveProfile();
                             }

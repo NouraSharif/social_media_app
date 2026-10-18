@@ -9,4 +9,6 @@ abstract class ProfileRemoteDataSource {
     required String imagePath,
     required String uid,
   });
+
+  Future<void> createBasicProfile({required String uid, required String email});
 }
