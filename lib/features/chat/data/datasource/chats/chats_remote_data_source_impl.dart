@@ -20,6 +20,7 @@ class ChatsRemoteDataSourceImpl implements ChatsRemoteDataSource {
     return _firestore
         .collection('chats')
         .where('participants', arrayContains: currentUserId)
+        .orderBy('lastMessageAt', descending: true)
         .snapshots()
         .asyncMap((snapshot) async {
           final chats = await Future.wait(
