@@ -20,6 +20,7 @@ class ChatPage extends StatefulWidget {
   final String chatId;
   final String otherUserId;
   final String displayName;
+  final String userName;
   final String? image;
 
   const ChatPage({
@@ -27,6 +28,7 @@ class ChatPage extends StatefulWidget {
     required this.chatId,
     required this.otherUserId,
     required this.displayName,
+    required this.userName,
     this.image,
   });
 
@@ -161,7 +163,7 @@ class _ChatPageState extends State<ChatPage> {
         title: ChatUserHeader(
           userImage: widget.image,
           displayName: widget.displayName,
-          username: 'nourasharif',
+          username: widget.userName,
           isActive: true,
         ),
       ),

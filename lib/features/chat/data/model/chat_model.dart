@@ -7,6 +7,7 @@ class ChatModel extends ChatEntity {
     required super.otherUserId,
     required super.image,
     required super.displayName,
+    required super.userName,
     required super.lastMessage,
     required super.lastMessageAt,
     required super.lastMessageSenderId,
@@ -20,6 +21,7 @@ class ChatModel extends ChatEntity {
       otherUserId: json['otherUserId'] as String,
       image: json['image'] as String?,
       displayName: json['displayName'] as String? ?? 'Unknown user',
+      userName: json['userName'] as String? ?? 'Unknown user',
       lastMessage: json['lastMessage'] as String? ?? '',
       lastMessageAt: timestamp is Timestamp
           ? timestamp.toDate()

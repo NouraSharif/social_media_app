@@ -139,6 +139,7 @@ class _MessagesPageState extends State<MessagesPage>
                                         otherUserId: chat.otherUserId,
                                         image: chat.image,
                                         displayName: chat.displayName,
+                                        userName: chat.userName,
                                         lastMessage: chat.lastMessage,
                                         lastMessageAt: chat.lastMessageAt,
                                         lastMessageSenderId:
@@ -158,6 +159,7 @@ class _MessagesPageState extends State<MessagesPage>
                                             'chatId': chat.chatId,
                                             'otherUserId': chat.otherUserId,
                                             'displayName': chat.displayName,
+                                            'userName': chat.userName,
                                             'image': chat.image,
                                           },
                                         );

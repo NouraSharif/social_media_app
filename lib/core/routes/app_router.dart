@@ -140,6 +140,7 @@ final GoRouter appRouter = GoRouter(
             chatId: data['chatId'] as String,
             otherUserId: data['otherUserId'] as String,
             displayName: data['displayName'] as String,
+            userName: data['userName'] as String,
             image: data['image'] as String?,
           ),
         );

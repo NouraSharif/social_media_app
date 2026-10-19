@@ -56,6 +56,7 @@ class ChatsRemoteDataSourceImpl implements ChatsRemoteDataSource {
                 'chatId': doc.id,
                 'otherUserId': otherUserId,
                 'displayName': profileData['displayName'] ?? 'Unknown user',
+                'userName': profileData['username'] ?? 'Unknown user',
                 'image': profileData['profileImageUrl'],
                 'lastMessage': data['lastMessage'],
                 'lastMessageAt': data['lastMessageAt'],
