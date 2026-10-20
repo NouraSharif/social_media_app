@@ -29,11 +29,19 @@ class NewMessageUserItem extends StatelessWidget {
                   height: 45,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.asset(
+                    child: Image.network(
                       userImage!,
                       width: 45,
                       height: 45,
-                      fit: BoxFit.contain,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Center(
+                          child: Icon(
+                            CupertinoIcons.person_fill,
+                            color: Color(0xFF9397A8),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 )

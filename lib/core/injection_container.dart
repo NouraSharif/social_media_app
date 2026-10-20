@@ -12,6 +12,11 @@ import 'package:social_media_app/features/auth/domain/usecases/signup.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verification.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verify_reset_otp.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/verification/verification_cubit.dart';
+import 'package:social_media_app/features/chat/data/datasource/new_message_user_remote_data_sorce.dart';
+import 'package:social_media_app/features/chat/data/datasource/new_message_user_remote_data_sorce_impl.dart';
+import 'package:social_media_app/features/chat/data/repository/new_message_user_repository_iml.dart';
+import 'package:social_media_app/features/chat/domain/repository/new_message_user_repository.dart';
+import 'package:social_media_app/features/chat/domain/usecases/new_message_user_usecase.dart';
 import 'package:social_media_app/features/profile/data/datasource/profile_remote_data_source_impl.dart';
 import 'package:social_media_app/features/profile/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/features/profile/domain/usecase/create_basic_profile.dart';
@@ -96,6 +101,15 @@ final chatsRemoteDataSource = ChatsRemoteDataSourceImpl(
 final chatsRepository = ChatsRepositoryImpl(chatsRemoteDataSource);
 final getChatsUseCase = GetChatsUseCase(chatsRepository);
 final deleteChatUseCase = DeleteChatUseCase(chatsRepository);
+
+final newMessageUserRemoteDataSorce = NewMessageUserRemoteDataSorceImpl(
+  firebaseAuth,
+  firestore,
+);
+final newMessageUserRepository = NewMessageUserRepositoryImp(
+  newMessageUserRemoteDataSorce,
+);
+final newMessageUserUseCase = NewMessageUserUsecase(newMessageUserRepository);
 
 final chatDataSource = ChatRemoteDataSourceImpl(firestore, firebaseAuth);
 final chatRepository = ChatRepositoryImpl(chatDataSource);

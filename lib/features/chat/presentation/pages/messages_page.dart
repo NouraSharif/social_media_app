@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
+import 'package:social_media_app/core/injection_container.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 import 'package:social_media_app/features/chat/data/model/chat_model.dart';
 import 'package:social_media_app/features/chat/presentation/bloc/chats/chats_cubit.dart';
 import 'package:social_media_app/features/chat/presentation/bloc/chats/chats_state.dart';
+import 'package:social_media_app/features/chat/presentation/bloc/new_message_user_cubit.dart';
 import 'package:social_media_app/features/chat/presentation/pages/new_message_page.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/app_icon_button.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/chat_list_item.dart';
@@ -98,7 +100,12 @@ class _MessagesPageState extends State<MessagesPage>
                       onPressed: () {
                         showModalBottomSheet(
                           context: context,
-                          builder: (context) => const NewMessagePage(),
+                          builder: (context) => BlocProvider(
+                            create: (_) => NewMessageUserCubit(
+                              newMessageUserUseCase: newMessageUserUseCase,
+                            )..getMessageUsers(),
+                            child: NewMessagePage(),
+                          ),
                         );
                       },
                       icon: const Icon(Icons.add),

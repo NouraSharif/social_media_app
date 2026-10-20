@@ -1,11 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:social_media_app/core/constants/app_assets.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
+import 'package:social_media_app/core/widgets/app_snack_bar.dart';
+import 'package:social_media_app/core/widgets/empty_state_message.dart';
+import 'package:social_media_app/features/chat/presentation/bloc/new_message_user_cubit.dart';
+import 'package:social_media_app/features/chat/presentation/bloc/new_message_user_state.dart';
 import 'package:social_media_app/features/chat/presentation/pages/widgets/new_message_user_item.dart';
 
 class NewMessagePage extends StatefulWidget {
@@ -26,16 +30,6 @@ class _NewMessagePageState extends State<NewMessagePage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<NewMessageUserItem> users = [
-      NewMessageUserItem(
-        userImage: Assets.imagesPerson,
-        displayName: 'Alaa Abu Jehad',
-        username: '@jehad2026',
-        onPressed: () {
-          context.push(AppRoutes.chat);
-        },
-      ),
-    ];
     return Container(
       height: context.h(738),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -87,10 +81,47 @@ class _NewMessagePageState extends State<NewMessagePage> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: users.length,
-              itemBuilder: (context, i) {
-                return users[i];
+            child: BlocConsumer<NewMessageUserCubit, NewMessageUserState>(
+              listener: (context, state) {
+                if (state is NewMessageUserFailure) {
+                  AppSnackBar.showError(context, state.message);
+                }
+              },
+              builder: (context, state) {
+                if (state is NewMessageUserLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (state is NewMessageUserLoaded) {
+                  if (state.data.isEmpty) {
+                    return const EmptyStateMessage(message: 'No users found');
+                  }
+                  return ListView.builder(
+                    itemCount: state.data.length,
+                    itemBuilder: (context, i) {
+                      final data = state.data[i];
+
+                      return NewMessageUserItem(
+                        userImage: data.image,
+                        displayName: data.displayName,
+                        username: data.userName,
+                        onPressed: () {
+                          context.push(
+                            AppRoutes.chat,
+                            extra: {
+                              'chatId': data.chatId,
+                              'otherUserId': data.otherUserId,
+                              'displayName': data.displayName,
+                              'userName': data.userName,
+                              'image': data.image,
+                            },
+                          );
+                        },
+                      );
+                    },
+                  );
+                }
+
+                return const SizedBox.shrink();
               },
             ),
           ),
