@@ -15,4 +15,9 @@ class ChatRepositoryImpl implements ChatRepository {
   Stream<List<Message>> getMessages(String chatId) {
     return dataSource.getMessages(chatId);
   }
+
+  @override
+  Future<String> getOrCreateChat(String otherUserId) {
+    return dataSource.getOrCreateChat(otherUserId);
+  }
 }

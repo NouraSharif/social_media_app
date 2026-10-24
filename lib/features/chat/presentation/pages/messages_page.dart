@@ -103,6 +103,8 @@ class _MessagesPageState extends State<MessagesPage>
                           builder: (context) => BlocProvider(
                             create: (_) => NewMessageUserCubit(
                               newMessageUserUseCase: newMessageUserUseCase,
+                              newMessageSearchUsersUsecase:
+                                  newMessageSearchUsersUsecase,
                             )..getMessageUsers(),
                             child: NewMessagePage(),
                           ),

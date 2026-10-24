@@ -50,7 +50,12 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    context.read<ChatBloc>().add(GetMessages(chatId: widget.chatId));
+
+    if (widget.chatId.isEmpty) {
+      context.read<ChatBloc>().add(OpenNewChat(widget.otherUserId));
+    } else {
+      context.read<ChatBloc>().add(GetMessages(chatId: widget.chatId));
+    }
   }
 
   @override
@@ -117,11 +122,18 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _handleChatState(ChatState state) {
+    if (state is ChatReady) {
+      context.read<ChatBloc>().add(GetMessages(chatId: state.chatId));
+      return;
+    }
+
     if (state is ChatFailure) {
       AppSnackBar.showError(context, state.errorMessage);
       return;
     }
+
     if (state is! ChatLoaded) return;
+
     if (state.isSending) {
       _observedSending = true;
       return;

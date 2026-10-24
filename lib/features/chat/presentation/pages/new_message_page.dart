@@ -20,13 +20,7 @@ class NewMessagePage extends StatefulWidget {
 }
 
 class _NewMessagePageState extends State<NewMessagePage> {
-  final searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
+  String? searchText;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +59,6 @@ class _NewMessagePageState extends State<NewMessagePage> {
             ],
           ),
           TextField(
-            controller: searchController,
             onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
             decoration: InputDecoration(
               filled: true,
@@ -79,52 +72,108 @@ class _NewMessagePageState extends State<NewMessagePage> {
                 color: const Color(0xFF91999E),
               ),
             ),
+            onChanged: (val) {
+              setState(() {
+                searchText = val;
+              });
+              context.read<NewMessageUserCubit>().searchUsers(searchText!);
+            },
           ),
-          Expanded(
-            child: BlocConsumer<NewMessageUserCubit, NewMessageUserState>(
-              listener: (context, state) {
-                if (state is NewMessageUserFailure) {
-                  AppSnackBar.showError(context, state.message);
-                }
-              },
-              builder: (context, state) {
-                if (state is NewMessageUserLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (state is NewMessageUserLoaded) {
-                  if (state.data.isEmpty) {
-                    return const EmptyStateMessage(message: 'No users found');
-                  }
-                  return ListView.builder(
-                    itemCount: state.data.length,
-                    itemBuilder: (context, i) {
-                      final data = state.data[i];
-
-                      return NewMessageUserItem(
-                        userImage: data.image,
-                        displayName: data.displayName,
-                        username: data.userName,
-                        onPressed: () {
-                          context.push(
-                            AppRoutes.chat,
-                            extra: {
-                              'chatId': data.chatId,
-                              'otherUserId': data.otherUserId,
-                              'displayName': data.displayName,
-                              'userName': data.userName,
-                              'image': data.image,
-                            },
-                          );
-                        },
-                      );
+          searchText != null
+              ? Expanded(
+                  child: BlocConsumer<NewMessageUserCubit, NewMessageUserState>(
+                    listener: (context, state) {
+                      if (state is NewMessageUserFailure) {
+                        AppSnackBar.showError(context, state.message);
+                      }
                     },
-                  );
-                }
+                    builder: (context, state) {
+                      if (state is NewMessageUserLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (state is NewMessageSearchUsersLoaded) {
+                        if (state.data.isEmpty) {
+                          return const EmptyStateMessage(
+                            message: 'No users found',
+                          );
+                        }
+                        return ListView.builder(
+                          itemCount: state.data.length,
+                          itemBuilder: (context, i) {
+                            final data = state.data[i];
 
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
+                            return NewMessageUserItem(
+                              userImage: data.image,
+                              displayName: data.displayName,
+                              username: data.userName,
+                              onPressed: () {
+                                context.push(
+                                  AppRoutes.chat,
+                                  extra: {
+                                    'chatId': data.chatId,
+                                    'otherUserId': data.otherUserId,
+                                    'displayName': data.displayName,
+                                    'userName': data.userName,
+                                    'image': data.image,
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        );
+                      }
+
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                )
+              : Expanded(
+                  child: BlocConsumer<NewMessageUserCubit, NewMessageUserState>(
+                    listener: (context, state) {
+                      if (state is NewMessageUserFailure) {
+                        AppSnackBar.showError(context, state.message);
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is NewMessageUserLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (state is NewMessageUserLoaded) {
+                        if (state.data.isEmpty) {
+                          return const EmptyStateMessage(
+                            message: 'No users found',
+                          );
+                        }
+                        return ListView.builder(
+                          itemCount: state.data.length,
+                          itemBuilder: (context, i) {
+                            final data = state.data[i];
+
+                            return NewMessageUserItem(
+                              userImage: data.image,
+                              displayName: data.displayName,
+                              username: data.userName,
+                              onPressed: () {
+                                context.push(
+                                  AppRoutes.chat,
+                                  extra: {
+                                    'chatId': data.chatId,
+                                    'otherUserId': data.otherUserId,
+                                    'displayName': data.displayName,
+                                    'userName': data.userName,
+                                    'image': data.image,
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        );
+                      }
+
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ),
         ],
       ),
     );

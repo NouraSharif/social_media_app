@@ -20,6 +20,14 @@ class NewMessageUserLoaded extends NewMessageUserState {
   List<Object?> get props => [data];
 }
 
+class NewMessageSearchUsersLoaded extends NewMessageUserState {
+  final List<NewMessageUserEntity> data;
+  const NewMessageSearchUsersLoaded(this.data);
+
+  @override
+  List<Object?> get props => [data];
+}
+
 class NewMessageUserFailure extends NewMessageUserState {
   final String message;
   const NewMessageUserFailure(this.message);

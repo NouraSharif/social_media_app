@@ -11,10 +11,10 @@ class NewMessageUserModel extends NewMessageUserEntity {
 
   factory NewMessageUserModel.fromJson(Map<String, dynamic> json) {
     return NewMessageUserModel(
-      chatId: json['chatId'],
-      otherUserId: json['otherUserId'],
-      displayName: json['displayName'],
-      userName: json['userName'],
+      chatId: json['chatId'] ?? '',
+      otherUserId: json['otherUserId'] ?? '',
+      displayName: json['displayName'] ?? '',
+      userName: json['username'] ?? '',
       image: json['image'],
     );
   }

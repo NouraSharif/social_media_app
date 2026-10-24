@@ -10,4 +10,9 @@ class NewMessageUserRepositoryImp implements NewMessageUserRepository {
   Stream<List<NewMessageUserEntity>> getNewMessageUsers() {
     return _dataSorce.getNewMessageUsers();
   }
+
+  @override
+  Future<List<NewMessageUserEntity>> searchUsers(String searchText) {
+    return _dataSorce.searchUsers(searchText);
+  }
 }

@@ -135,6 +135,7 @@ final GoRouter appRouter = GoRouter(
             sendMessageUseCase: sendMessageUseCase,
             getMessagesUseCase: getMessagesUseCase,
             uploadChatImageUseCase: uploadChatImageUseCase,
+            getOrCreateChatUseCase: getOrCreateChatUseCase,
           ),
           child: ChatPage(
             chatId: data['chatId'] as String,

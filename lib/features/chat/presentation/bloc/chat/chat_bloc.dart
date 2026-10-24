@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/features/chat/domain/entities/message.dart';
 import 'package:social_media_app/features/chat/domain/usecases/chat/get_messages.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chat/get_or_create_chat.dart';
 import 'package:social_media_app/features/chat/domain/usecases/chat/send_message.dart';
 import 'package:social_media_app/features/chat/domain/usecases/chat/upload_chat_image_usecase.dart';
 import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_event.dart';
@@ -10,6 +11,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final SendMessageUseCase sendMessageUseCase;
   final GetMessagesUseCase getMessagesUseCase;
   final UploadChatImageUseCase uploadChatImageUseCase;
+  final GetOrCreateChatUseCase getOrCreateChatUseCase;
 
   List<Message> _messages = [];
   bool _isSending = false;
@@ -18,9 +20,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     required this.sendMessageUseCase,
     required this.getMessagesUseCase,
     required this.uploadChatImageUseCase,
+    required this.getOrCreateChatUseCase,
   }) : super(ChatInitial()) {
     on<SendMessage>(_sendMessage);
     on<GetMessages>(_getMessages);
+    on<OpenNewChat>(_openChat);
   }
 
   Future<void> _sendMessage(SendMessage event, Emitter<ChatState> emit) async {
@@ -67,6 +71,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
         emit(ChatLoaded(_messages, isSending: _isSending));
       }
+    } catch (e) {
+      emit(ChatFailure(e.toString()));
+    }
+  }
+
+  Future<void> _openChat(OpenNewChat event, Emitter<ChatState> emit) async {
+    emit(ChatLoading());
+
+    try {
+      final chatId = await getOrCreateChatUseCase.call(event.otherUserId);
+      emit(ChatReady(chatId));
     } catch (e) {
       emit(ChatFailure(e.toString()));
     }

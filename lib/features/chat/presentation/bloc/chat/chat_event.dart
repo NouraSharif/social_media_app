@@ -27,3 +27,9 @@ class GetMessages extends ChatEvent {
   @override
   List<Object?> get props => [chatId];
 }
+
+class OpenNewChat extends ChatEvent {
+  final String otherUserId;
+
+  const OpenNewChat(this.otherUserId);
+}

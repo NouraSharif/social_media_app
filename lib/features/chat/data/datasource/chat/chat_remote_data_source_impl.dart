@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:social_media_app/features/chat/data/datasource/chat/chat_remote_data_source.dart';
@@ -41,9 +43,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       final isNewChat = matchingChat == null;
 
-      final chatRef =
-          matchingChat?.reference ?? _firestore.collection('chats').doc();
+      final chatId = base64Url.encode(utf8.encode(participants.join('|')));
 
+      final chatRef =
+          matchingChat?.reference ?? _firestore.collection('chats').doc(chatId);
       final messageRef = chatRef.collection('messages').doc();
       final batch = _firestore.batch();
       final timestamp = FieldValue.serverTimestamp();
@@ -99,5 +102,62 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
               .map((doc) => MessageModel.fromJson(doc.data()))
               .toList(),
         );
+  }
+
+  @override
+  Future<String> getOrCreateChat(String otherUserId) async {
+    final currentUserId = _auth.currentUser?.uid;
+
+    if (currentUserId == null) {
+      throw Exception('User is not authenticated');
+    }
+
+    if (currentUserId == otherUserId) {
+      throw Exception('You cannot chat with yourself');
+    }
+
+    final participants = [currentUserId, otherUserId]..sort();
+
+    // 1. Search for an existing conversation.
+    final snapshot = await _firestore
+        .collection('chats')
+        .where('participants', arrayContains: currentUserId)
+        .get();
+
+    final existingChat = snapshot.docs.where((doc) {
+      final ids = List<String>.from(doc.data()['participants'] ?? []);
+
+      return ids.length == 2 &&
+          ids.contains(currentUserId) &&
+          ids.contains(otherUserId);
+    }).firstOrNull;
+
+    if (existingChat != null) {
+      return existingChat.id;
+    }
+
+    // 2. Use a deterministic ID for newly created conversations.
+    // This prevents simultaneous creation of duplicate new chats.
+    final chatId = base64Url.encode(utf8.encode(participants.join('|')));
+
+    final chatRef = _firestore.collection('chats').doc(chatId);
+
+    await _firestore.runTransaction((transaction) async {
+      final chatSnapshot = await transaction.get(chatRef);
+
+      if (!chatSnapshot.exists) {
+        final timestamp = FieldValue.serverTimestamp();
+
+        transaction.set(chatRef, {
+          'participants': participants,
+          'createdAt': timestamp,
+          'lastMessage': '',
+          'lastMessageAt': timestamp,
+          'lastMessageSenderId': null,
+          'hiddenFor': <String>[],
+        });
+      }
+    });
+    return chatId;
   }
 }

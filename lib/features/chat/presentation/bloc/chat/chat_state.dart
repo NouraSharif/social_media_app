@@ -31,3 +31,12 @@ class ChatFailure extends ChatState {
   @override
   List<Object?> get props => [errorMessage];
 }
+
+class ChatReady extends ChatState {
+  final String chatId;
+
+  const ChatReady(this.chatId);
+
+  @override
+  List<Object?> get props => [chatId];
+}

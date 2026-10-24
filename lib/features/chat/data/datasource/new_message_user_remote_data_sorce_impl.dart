@@ -58,7 +58,7 @@ class NewMessageUserRemoteDataSorceImpl
                 'chatId': doc.id,
                 'otherUserId': otherUserId,
                 'displayName': profileData['displayName'] ?? 'Unknown user',
-                'userName': profileData['username'] ?? 'Unknown user',
+                'username': profileData['username'] ?? 'Unknown user',
                 'image': profileData['profileImageUrl'],
                 'lastMessage': data['lastMessage'],
                 'lastMessageAt': data['lastMessageAt'],
@@ -69,5 +69,54 @@ class NewMessageUserRemoteDataSorceImpl
 
           return chats.whereType<NewMessageUserModel>().toList();
         });
+  }
+
+  @override
+  Future<List<NewMessageUserModel>> searchUsers(String searchText) async {
+    final query = searchText.trim().toLowerCase();
+    if (query.isEmpty) return [];
+
+    // اليوزر نيم مخزن مع @، فنضيفها لو المستخدم ما كتبها
+    final usernameQuery = query.startsWith('@') ? query : '@$query';
+
+    final profiles = _firestore.collection('profiles');
+
+    // كويريين بالتوازي (OR بين اليوزر نيم والديسبلي نيم)
+    final results = await Future.wait([
+      profiles
+          .where('username', isGreaterThanOrEqualTo: usernameQuery)
+          .where('username', isLessThan: '$usernameQuery\uf8ff')
+          .limit(20)
+          .get(),
+      profiles
+          .where('displayNameLower', isGreaterThanOrEqualTo: query)
+          .where('displayNameLower', isLessThan: '$query\uf8ff')
+          .limit(20)
+          .get(),
+    ]);
+
+    // دمج النتائج وإزالة التكرار باستخدام معرّف المستخدم
+    final Map<String, NewMessageUserModel> unique = {};
+
+    for (final snapshot in results) {
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+
+        unique[doc.id] = NewMessageUserModel.fromJson({
+          ...data,
+          'otherUserId': doc.id,
+          'chatId': '',
+          'image': data['profileImageUrl'],
+        });
+      }
+    }
+
+    // استثناء المستخدم الحالي من النتائج
+    final currentUid = _firebaseAuth.currentUser?.uid;
+    if (currentUid != null) {
+      unique.remove(currentUid);
+    }
+
+    return unique.values.toList();
   }
 }
