@@ -27,6 +27,12 @@ class NewMessageUserRemoteDataSorceImpl
           final chats = await Future.wait(
             snapshot.docs.map((doc) async {
               final data = doc.data();
+
+              // تجاهل المحادثات التي لم تُرسل فيها أي رسالة
+              if (data['hasMessages'] != true) {
+                return null;
+              }
+
               final hiddenFor = List<String>.from(data['hiddenFor'] ?? []);
 
               if (hiddenFor.contains(currentUserId)) {

@@ -26,6 +26,11 @@ class ChatsRemoteDataSourceImpl implements ChatsRemoteDataSource {
           final chats = await Future.wait(
             snapshot.docs.map((doc) async {
               final data = doc.data();
+
+              // Ignore conversations that don't have a message yet.
+              if (data['hasMessages'] != true) {
+                return null;
+              }
               final hiddenFor = List<String>.from(data['hiddenFor'] ?? []);
 
               if (hiddenFor.contains(currentUserId)) {

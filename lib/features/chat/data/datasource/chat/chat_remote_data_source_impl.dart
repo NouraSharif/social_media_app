@@ -69,6 +69,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           'lastMessageAt': timestamp,
           'lastMessageSenderId': currentUserId,
           'hiddenFor': <String>[],
+          'hasMessages': true,
         });
       } else {
         // Update the existing chat and make it visible to both users again.
@@ -80,6 +81,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             currentUserId,
             message.receiverId,
           ]),
+          'hasMessages': true,
         });
       }
 
@@ -91,17 +93,23 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
   @override
   Stream<List<Message>> getMessages(String chatId) {
-    return _firestore
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .map(
-          (snapshots) => snapshots.docs
-              .map((doc) => MessageModel.fromJson(doc.data()))
-              .toList(),
-        );
+    final chatRef = _firestore.collection('chats').doc(chatId);
+
+    return chatRef.snapshots().asyncExpand((chatSnapshot) {
+      if (!chatSnapshot.exists) {
+        return Stream.value(<Message>[]);
+      }
+
+      return chatRef
+          .collection('messages')
+          .orderBy('timestamp', descending: true)
+          .snapshots()
+          .map(
+            (snapshot) => snapshot.docs
+                .map((doc) => MessageModel.fromJson(doc.data()))
+                .toList(),
+          );
+    });
   }
 
   @override
@@ -118,7 +126,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
     final participants = [currentUserId, otherUserId]..sort();
 
-    // 1. Search for an existing conversation.
+    // Search for an existing conversation.
     final snapshot = await _firestore
         .collection('chats')
         .where('participants', arrayContains: currentUserId)
@@ -136,28 +144,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       return existingChat.id;
     }
 
-    // 2. Use a deterministic ID for newly created conversations.
-    // This prevents simultaneous creation of duplicate new chats.
-    final chatId = base64Url.encode(utf8.encode(participants.join('|')));
-
-    final chatRef = _firestore.collection('chats').doc(chatId);
-
-    await _firestore.runTransaction((transaction) async {
-      final chatSnapshot = await transaction.get(chatRef);
-
-      if (!chatSnapshot.exists) {
-        final timestamp = FieldValue.serverTimestamp();
-
-        transaction.set(chatRef, {
-          'participants': participants,
-          'createdAt': timestamp,
-          'lastMessage': '',
-          'lastMessageAt': timestamp,
-          'lastMessageSenderId': null,
-          'hiddenFor': <String>[],
-        });
-      }
-    });
-    return chatId;
+    // Return the deterministic ID without creating an empty chat.
+    return base64Url.encode(utf8.encode(participants.join('|')));
   }
 }
