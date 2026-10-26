@@ -16,6 +16,7 @@ import 'package:social_media_app/features/auth/presentation/pages/signup/signup_
 import 'package:social_media_app/features/auth/presentation/pages/splash/splash_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/verification/verification_page.dart';
 import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_bloc.dart';
+import 'package:social_media_app/features/search/presentation/bloc/search_users_cubit.dart';
 import 'package:social_media_app/features/chat/presentation/bloc/chats/chats_cubit.dart';
 import 'package:social_media_app/features/chat/presentation/pages/chat_page.dart';
 import 'package:social_media_app/features/chat/presentation/pages/messages_page.dart';
@@ -123,7 +124,10 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.searchChat,
-      builder: (context, builder) => SearchChatPage(),
+      builder: (context, builder) => BlocProvider(
+        create: (((context) => SearchUsersCubit(searchUsersUsecase))),
+        child: SearchChatPage(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.chat,

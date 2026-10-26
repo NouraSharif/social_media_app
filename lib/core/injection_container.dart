@@ -12,9 +12,12 @@ import 'package:social_media_app/features/auth/domain/usecases/signup.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verification.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verify_reset_otp.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/verification/verification_cubit.dart';
+import 'package:social_media_app/features/search/data/datasource/search_users_remote_data_source_impl.dart';
 import 'package:social_media_app/features/chat/data/datasource/new_message_user_remote_data_sorce_impl.dart';
+import 'package:social_media_app/features/search/data/repository/search_users_repository_impl.dart';
 import 'package:social_media_app/features/chat/data/repository/new_message_user_repository_iml.dart';
 import 'package:social_media_app/features/chat/domain/usecases/chat/get_or_create_chat.dart';
+import 'package:social_media_app/features/search/domain/usecase/search_users_usecase.dart';
 import 'package:social_media_app/features/chat/domain/usecases/new_message_search_users_usecase.dart';
 import 'package:social_media_app/features/chat/domain/usecases/new_message_user_usecase.dart';
 import 'package:social_media_app/features/profile/data/datasource/profile_remote_data_source_impl.dart';
@@ -132,3 +135,13 @@ final chatImageStorageRepository = ChatImageStorageRepositoryImpl(
 final uploadChatImageUseCase = UploadChatImageUseCase(
   chatImageStorageRepository,
 );
+
+// Search
+final searchUsersRemoteDataSource = SearchUsersRemoteDataSourceImpl(
+  firebaseAuth,
+  firestore,
+);
+final searchUsersRepository = SearchUsersRepositoryImpl(
+  searchUsersRemoteDataSource,
+);
+final searchUsersUsecase = SearchUsersUsecase(searchUsersRepository);
