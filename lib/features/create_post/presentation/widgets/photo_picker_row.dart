@@ -93,40 +93,90 @@ Future<void> showAddPhotoSheet({
   return showModalBottomSheet(
     showDragHandle: true,
     context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    constraints: BoxConstraints(
+      maxWidth: 560,
+      maxHeight: context.screenHeight * 0.9,
+    ),
     backgroundColor: AppColors.white,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(context.w(20))),
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(context.w(20).clamp(16.0, 24.0)),
+      ),
     ),
     builder: (context) {
       return SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          padding: EdgeInsets.symmetric(horizontal: context.w(23)),
-          children: [
-            Text('Upload Picture', style: AppTextStyles.appBarTitle),
-            SizedBox(height: context.h(20)),
-            Row(
-              spacing: 5,
-              children: [
-                _PhotoSourceOption(
-                  iconAsset: Assets.imagesTakePicture,
-                  label: 'Take a picture',
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    onTakePicture();
-                  },
-                ),
-                _PhotoSourceOption(
-                  iconAsset: Assets.imagesFromGallery,
-                  label: 'From gallery',
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    onUploadFromGallery();
-                  },
-                ),
-              ],
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ),
+          child: ListView(
+            shrinkWrap: true,
+            padding: EdgeInsets.fromLTRB(
+              context.w(23).clamp(16.0, 28.0),
+              0,
+              context.w(23).clamp(16.0, 28.0),
+              context.h(20).clamp(12.0, 24.0),
             ),
-          ],
+            children: [
+              Text(
+                'Upload Picture',
+                style: AppTextStyles.appBarTitle.copyWith(
+                  fontSize: context.sp(24).clamp(20.0, 26.0),
+                ),
+              ),
+              SizedBox(height: context.h(20).clamp(12.0, 24.0)),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final fontSize = context.sp(14).clamp(14.0, 16.0);
+                  final stackOptions =
+                      constraints.maxWidth < 300 ||
+                      MediaQuery.textScalerOf(context).scale(fontSize) /
+                              fontSize >=
+                          1.3;
+                  final gap = context.w(9).clamp(8.0, 12.0);
+                  final options = [
+                    _PhotoSourceOption(
+                      iconAsset: Assets.imagesTakePicture,
+                      label: 'Take a picture',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        onTakePicture();
+                      },
+                    ),
+                    _PhotoSourceOption(
+                      iconAsset: Assets.imagesFromGallery,
+                      label: 'From gallery',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        onUploadFromGallery();
+                      },
+                    ),
+                  ];
+                  if (stackOptions) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        options[0],
+                        SizedBox(height: gap),
+                        options[1],
+                      ],
+                    );
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: options[0]),
+                      SizedBox(width: gap),
+                      Expanded(child: options[1]),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       );
     },
@@ -146,24 +196,34 @@ class _PhotoSourceOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconSize = context.w(40).clamp(32.0, 48.0);
+    final radius = context.w(10).clamp(8.0, 12.0);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(context.w(12)),
+      borderRadius: BorderRadius.circular(radius),
       child: Container(
-        margin: EdgeInsets.all(4),
-        height: context.h(95),
-        width: context.w(153),
-        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(15).clamp(12.0, 20.0),
+          horizontal: context.w(12).clamp(8.0, 16.0),
+        ),
         decoration: BoxDecoration(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(radius),
           border: Border.all(color: AppColors.iconBackground),
         ),
         child: Column(
-          spacing: 10,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(iconAsset, width: context.w(40), height: context.w(40)),
-            Text(label, style: AppTextStyles.body),
+            Image.asset(iconAsset, width: iconSize, height: iconSize),
+            SizedBox(height: context.h(10).clamp(8.0, 12.0)),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              softWrap: true,
+              style: AppTextStyles.body.copyWith(
+                fontSize: context.sp(14).clamp(14.0, 16.0),
+              ),
+            ),
           ],
         ),
       ),

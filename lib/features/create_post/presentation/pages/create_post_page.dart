@@ -6,6 +6,7 @@ import 'package:social_media_app/core/constants/app_colors.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import 'package:social_media_app/core/widgets/second_appbar.dart';
+import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 
 import '../../../../core/injection_container.dart';
 import '../../domain/usecases/create_post_usecase.dart';
@@ -95,12 +96,9 @@ class _CreatePostViewState extends State<_CreatePostView> {
       );
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Could not open the image picker. Check photo/camera permissions and try again.',
-            ),
-          ),
+        AppSnackBar.showError(
+          context,
+          'Could not open the image picker. Check photo/camera permissions and try again.',
         );
       }
     } finally {
@@ -115,13 +113,11 @@ class _CreatePostViewState extends State<_CreatePostView> {
         if (state.submissionStatus == CreatePostSubmissionStatus.success) {
           // Let PopScope rebuild with canPop enabled before leaving the form.
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) context.pop();
+            if (context.mounted) context.pop(true);
           });
         } else if (state.submissionStatus ==
             CreatePostSubmissionStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage ?? 'error')),
-          );
+          AppSnackBar.showError(context, state.errorMessage ?? 'error');
         }
       },
       builder: (context, state) {
@@ -151,6 +147,9 @@ class _CreatePostViewState extends State<_CreatePostView> {
                           vertical: context.h(16),
                         ),
                         child: TextFormField(
+                          onTapOutside: (event){
+                            FocusScope.of(context).unfocus();
+                          },
                           controller: _postController,
                           focusNode: _postFocusNode,
                           maxLines: null,

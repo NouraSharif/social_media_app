@@ -9,6 +9,7 @@ class PostFeedBloc extends Bloc<PostFeedEvent, PostFeedState> {
   final GetPostsUseCase getPostsUseCase;
   final TogglePostLikeUseCase togglePostLikeUseCase;
   int _loadVersion = 0;
+  final Set<String> _deletedPostIds = {};
 
   PostFeedBloc({
     required this.togglePostLikeUseCase,
@@ -16,6 +17,15 @@ class PostFeedBloc extends Bloc<PostFeedEvent, PostFeedState> {
   }) : super(const PostFeedState()) {
     on<PostFeedRequested>(_onRequested);
     on<PostFeedLikeToggled>(_onLikeToggled);
+    on<PostFeedPostDeleted>((event, emit) {
+      _deletedPostIds.add(event.postId);
+      emit(
+        state.copyWith(
+          posts: state.posts.where((post) => post.id != event.postId).toList(),
+          likingPostIds: {...state.likingPostIds}..remove(event.postId),
+        ),
+      );
+    });
   }
 
   Future<void> _onRequested(
@@ -27,7 +37,12 @@ class PostFeedBloc extends Bloc<PostFeedEvent, PostFeedState> {
     try {
       final posts = await getPostsUseCase();
       if (version != _loadVersion) return;
-      emit(state.copyWith(status: PostFeedStatus.success, posts: posts));
+      emit(
+        state.copyWith(
+          status: PostFeedStatus.success,
+          posts: posts.where((post) => !_deletedPostIds.contains(post.id)).toList(),
+        ),
+      );
     } catch (_) {
       if (version != _loadVersion) return;
       emit(

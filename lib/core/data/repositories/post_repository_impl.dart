@@ -6,6 +6,8 @@ class PostRepositoryImpl implements PostRepository {
   final PostRemoteDataSource remoteDatasource;
   const PostRepositoryImpl(this.remoteDatasource);
   @override
+  Future<void> deletePost(String postId) => remoteDatasource.deletePost(postId);
+  @override
   Future<PostEntity> getPostById(String postId) =>
       remoteDatasource.getPostById(postId);
   @override

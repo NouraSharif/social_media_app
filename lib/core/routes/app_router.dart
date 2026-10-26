@@ -1,15 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:social_media_app/core/injection_container.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
-import 'package:social_media_app/features/create_post/presentation/pages/create_post_page.dart';
-import 'package:social_media_app/features/home/presentation/pages/home_page.dart';
-import 'package:social_media_app/features/post_details/presentation/pages/post_details.dart';
-
-import '../../features/home/presentation/pages/home_shell.dart';
-
 import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/verification/verification_cubit.dart';
 import 'package:social_media_app/features/auth/presentation/pages/auth/auth_page.dart';
@@ -22,6 +14,12 @@ import 'package:social_media_app/features/auth/presentation/pages/splash/splash_
 import 'package:social_media_app/features/auth/presentation/pages/verification/verification_page.dart';
 import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_cubit.dart';
 import 'package:social_media_app/features/profile/presentation/pages/complete_profile_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:social_media_app/features/create_post/presentation/pages/create_post_page.dart';
+import 'package:social_media_app/features/home/presentation/pages/home_page.dart';
+import 'package:social_media_app/features/post_details/presentation/pages/post_details.dart';
+import '../../features/home/presentation/pages/home_shell.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: FirebaseAuth.instance.currentUser != null

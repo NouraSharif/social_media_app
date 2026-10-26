@@ -17,6 +17,7 @@ import 'data/repositories/post_repository_impl.dart';
 import 'domain/repositories/post_repository.dart';
 import 'domain/usecases/get_post_by_id_usecase.dart';
 import 'domain/usecases/get_posts_usecase.dart';
+import 'domain/usecases/delete_post_usecase.dart';
 import 'domain/usecases/toggle_post_like_usecase.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -42,36 +43,6 @@ import 'package:social_media_app/features/profile/presentation/bloc/profile/prof
 
 final GetIt sl = GetIt.instance;
 void setupDependencies() {
-  // datasources - lazy singletons
-  sl.registerLazySingleton<PostRemoteDataSource>(
-    () => PostRemoteDataSource(firestore, firebaseAuth),
-  );
-  sl.registerLazySingleton<CommentRemoteDataSource>(
-    () => CommentRemoteDataSource(firestore, firebaseAuth),
-  );
-  sl.registerLazySingleton<CreatePostRemoteDataSource>(
-    () => CreatePostRemoteDataSourceImpl(firestore, firebaseAuth, supabase),
-  );
-
-  // repositories
-  sl.registerLazySingleton<PostRepository>(() => PostRepositoryImpl(sl()));
-  sl.registerLazySingleton<CommentRepository>(
-    () => CommentRepositoryImpl(sl()),
-  );
-  sl.registerLazySingleton<CreatePostRepository>(
-    () => CreatePostRepositoryImpl(sl()),
-  );
-
-  // usecases - factory new instance in each call
-  sl.registerFactory(() => GetPostsUseCase(sl()));
-  sl.registerFactory(() => GetPostByIdUseCase(sl()));
-  sl.registerFactory(() => TogglePostLikeUseCase(sl()));
-  sl.registerFactory(() => CreatePostUseCase(sl()));
-  //------------------
-  sl.registerFactory(() => GetCommentsUseCase(sl()));
-  sl.registerFactory(() => AddCommentUseCase(sl()));
-  sl.registerFactory(() => ToggleCommentLikeUseCase(sl()));
-}
 
 // Authentication
 
@@ -129,3 +100,35 @@ final profileCubit = ProfileCubit(
   getProfile: getProfile,
   uploadProfileImage: uploadProfileImage,
 );
+   // Home - Post and Comment
+  /// datasources - lazy singletons
+  sl.registerLazySingleton<PostRemoteDataSource>(
+        () => PostRemoteDataSource(firestore, firebaseAuth, supabase),
+  );
+  sl.registerLazySingleton<CommentRemoteDataSource>(
+        () => CommentRemoteDataSource(firestore, firebaseAuth),
+  );
+  sl.registerLazySingleton<CreatePostRemoteDataSource>(
+        () => CreatePostRemoteDataSourceImpl(firestore, firebaseAuth, supabase),
+  );
+
+  // repositories
+  sl.registerLazySingleton<PostRepository>(() => PostRepositoryImpl(sl()));
+  sl.registerLazySingleton<CommentRepository>(
+        () => CommentRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<CreatePostRepository>(
+        () => CreatePostRepositoryImpl(sl()),
+  );
+
+  // usecases - factory new instance in each call
+  sl.registerFactory(() => GetPostsUseCase(sl()));
+  sl.registerFactory(() => DeletePostUseCase(sl()));
+  sl.registerFactory(() => GetPostByIdUseCase(sl()));
+  sl.registerFactory(() => TogglePostLikeUseCase(sl()));
+  sl.registerFactory(() => CreatePostUseCase(sl()));
+  //------------------
+  sl.registerFactory(() => GetCommentsUseCase(sl()));
+  sl.registerFactory(() => AddCommentUseCase(sl()));
+  sl.registerFactory(() => ToggleCommentLikeUseCase(sl()));
+}

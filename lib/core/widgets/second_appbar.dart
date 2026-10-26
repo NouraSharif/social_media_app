@@ -24,11 +24,7 @@ class SecondAppbar extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: Text(
         title,
-        style: AppTextStyles.appBarTitle.copyWith(fontSize: context.sp(20)),
-      ),
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1),
-        child: Container(color: AppColors.border, height: 1),
+        style: AppTextStyles.appBarTitle,
       ),
     );
   }

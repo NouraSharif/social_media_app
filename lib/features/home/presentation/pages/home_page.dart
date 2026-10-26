@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/widgets/post_card.dart';
+import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 
 import '../bloc/post_feed_bloc.dart';
 import '../bloc/post_feed_event.dart';
@@ -21,8 +22,7 @@ class HomePage extends StatelessWidget {
       body: BlocConsumer<PostFeedBloc, PostFeedState>(
         listener: (context, state) {
           if (state.errorMessage != null) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+            AppSnackBar.showError(context, state.errorMessage!);
           }
         },
         builder: (context, state) {
@@ -55,10 +55,21 @@ class HomePage extends StatelessWidget {
               }
               return ListView.builder(
                 itemCount: state.posts.length,
-                itemBuilder: (context, index) {
+                itemBuilder: (_, index) {
                   final post = state.posts[index];
                   return PostCard(
+                    key: ValueKey(post.id),
                     post: post,
+                    onDeleted: () {
+                      if (!context.mounted) return;
+                      AppSnackBar.showSuccess(
+                        context,
+                        'Post deleted successfully.',
+                      );
+                      context.read<PostFeedBloc>().add(
+                        PostFeedPostDeleted(post.id),
+                      );
+                    },
                     onLikeTap: state.likingPostIds.contains(post.id)
                         ? null
                         : () {
@@ -67,8 +78,19 @@ class HomePage extends StatelessWidget {
                             );
                           },
                     onTap: () async {
-                      await context.push(AppRoutes.postDetailsPath(post.id));
+                      final deleted = await context.push<bool>(
+                        AppRoutes.postDetailsPath(post.id),
+                      );
                       if (context.mounted) {
+                        if (deleted == true) {
+                          AppSnackBar.showSuccess(
+                            context,
+                            'Post deleted successfully.',
+                          );
+                          context.read<PostFeedBloc>().add(
+                            PostFeedPostDeleted(post.id),
+                          );
+                        }
                         context.read<PostFeedBloc>().add(
                           const PostFeedRequested(),
                         );

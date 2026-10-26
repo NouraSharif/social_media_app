@@ -40,7 +40,8 @@ service cloud.firestore {
           && request.resource.data.get('commentsCount', 0) == 0
           && !('lastCommentId' in request.resource.data);
       allow update: if request.auth != null && (likeChange() || commentChange());
-      allow delete: if false;
+      allow delete: if request.auth != null
+          && request.auth.uid == resource.data.authorId;
 
       match /likes/{uid} {
         function counterChanged(delta) {

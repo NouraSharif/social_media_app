@@ -9,7 +9,13 @@ class StatChip extends StatelessWidget {
   final Color color;
   final VoidCallback? onTap;
 
-  const StatChip({required this.icon, required this.label, required this.color, this.onTap});
+  const StatChip({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.color,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +24,21 @@ class StatChip extends StatelessWidget {
       children: [
         Icon(icon, size: context.w(18), color: color),
         SizedBox(width: context.w(6)),
-        Text(label, style: AppTextStyles.number.copyWith(color: color, fontSize: context.sp(12))),
+        Text(
+          label,
+          style: AppTextStyles.number.copyWith(
+            color: color,
+            fontSize: context.sp(12),
+          ),
+        ),
       ],
     );
-    return onTap == null ? content : GestureDetector(onTap: onTap, child: content);
+    return onTap == null
+        ? content
+        : GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: content,
+          );
   }
 }

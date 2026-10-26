@@ -27,8 +27,8 @@ class AppTextStyles {
     fontFamily: 'Poppins',
     fontSize: 14,
     fontWeight: FontWeight.w400,
-    height: 1.3,
-    color: AppColors.textPrimary,
+    height: 1.0,
+    color: AppColors.textSecondary,
   );
 
   // Small Text
@@ -37,7 +37,7 @@ class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.w400,
     height: 1.0,
-    color: AppColors.black,
+    color: AppColors.textSecondary,
   );
 
   // TextField
@@ -66,4 +66,13 @@ class AppTextStyles {
     height: 1.0,
     color: AppColors.error,
   );
+  // usernames
+  static const TextStyle username = TextStyle(
+    fontFamily: 'Poppins',
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    height: 1.0,
+    color: AppColors.textPrimary,
+  );
+
 }

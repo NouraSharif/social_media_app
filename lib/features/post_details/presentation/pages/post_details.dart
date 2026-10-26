@@ -1,11 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/domain/usecases/get_post_by_id_usecase.dart';
 import 'package:social_media_app/core/domain/usecases/toggle_post_like_usecase.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import 'package:social_media_app/core/widgets/post_card.dart';
+import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 import 'package:social_media_app/core/widgets/second_appbar.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -68,8 +71,12 @@ class _PostDetailsViewState extends State<_PostDetailsView> {
           _commentController.clear();
         }
         if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+          if (state.errorMessage ==
+              'Comment sent. Could not refresh the latest comments.') {
+            AppSnackBar.showWarning(context, state.errorMessage!);
+          } else {
+            AppSnackBar.showError(context, state.errorMessage!);
+          }
         }
       },
       builder: (context, state) {
@@ -125,6 +132,28 @@ class _PostDetailsViewState extends State<_PostDetailsView> {
                   itemBuilder: (context, index) => index == 0
                       ? PostCard(
                           post: post,
+                          onDeleted: () {
+                            if (!context.mounted) return;
+                            if (context.canPop()) {
+                              context.pop(true);
+                            } else {
+                              // The root navigator survives route replacement and
+                              // remains below the app's ScaffoldMessenger.
+                              final navigationContext = Navigator.of(
+                                context,
+                                rootNavigator: true,
+                              ).context;
+                              context.go(AppRoutes.home);
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (navigationContext.mounted) {
+                                  AppSnackBar.showSuccess(
+                                    navigationContext,
+                                    'Post deleted successfully.',
+                                  );
+                                }
+                              });
+                            }
+                          },
                           onLikeTap: state.isLiking || state.isSubmitting
                               ? null
                               : () {
@@ -187,6 +216,7 @@ class CommentBar extends StatelessWidget {
           children: [
             Expanded(
               child: TextFormField(
+                onTapOutside: (event) => FocusScope.of(context).unfocus(),
                 controller: controller,
                 readOnly: isReadOnly,
                 maxLines: null,
@@ -232,7 +262,7 @@ class CommentBar extends StatelessWidget {
                 minimumSize: Size(context.w(34), context.h(34)),
                 padding: EdgeInsets.zero,
                 backgroundColor: isEnabled
-                    ? AppColors.primary
+                    ?  null
                     : AppColors.primary.withValues(alpha: 0.4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(context.w(10)),

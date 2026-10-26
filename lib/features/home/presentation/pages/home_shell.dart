@@ -8,6 +8,7 @@ import 'package:social_media_app/core/domain/usecases/get_posts_usecase.dart';
 import 'package:social_media_app/core/domain/usecases/toggle_post_like_usecase.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
+import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 
 import '../../../../core/injection_container.dart';
 import '../bloc/post_feed_bloc.dart';
@@ -66,10 +67,13 @@ class _HomeShellView extends StatelessWidget {
           shape: const CircleBorder(),
           onPressed: () async {
             // بننتظر لحد ما ترجع المستخدمة من شاشة إنشاء البوست
-            await context.push(AppRoutes.createPost);
+            final created = await context.push<bool>(AppRoutes.createPost);
             // وبعدين بنطلب Refresh من نفس الـ Bloc - بما إنه هون
             // بمستوى الـ Shell، لسا موجود وما انقفل
             if (context.mounted) {
+              if (created == true) {
+                AppSnackBar.showSuccess(context, 'Post created successfully.');
+              }
               context.read<PostFeedBloc>().add(const PostFeedRequested());
             }
           },

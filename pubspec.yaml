@@ -89,6 +89,7 @@ flutter:
     - assets/images/from_gallery.png
     - assets/images/take_picture.png
     - assets/images/upload_picture.png
+    - assets/images/categories_pics/
 
   fonts:
     - family: Poppins

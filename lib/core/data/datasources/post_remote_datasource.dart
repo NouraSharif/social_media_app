@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/post_model.dart';
 import '../../error/exceptions.dart';
@@ -7,7 +8,63 @@ import '../../error/exceptions.dart';
 class PostRemoteDataSource {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const PostRemoteDataSource(this.firestore, this.auth);
+  final SupabaseClient supabase;
+  const PostRemoteDataSource(this.firestore, this.auth, this.supabase);
+
+  Future<void> deletePost(String postId) async {
+    final uid = auth.currentUser?.uid;
+    if (uid == null) throw StateError('Please sign in to delete posts.');
+    final postRef = firestore.collection('posts').doc(postId);
+    final data = await firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(postRef);
+      final data = snapshot.data();
+      if (data == null) throw PostNotFoundException(postId);
+      if (data['authorId'] != uid) {
+        throw StateError('Only the author can delete this post.');
+      }
+      transaction.delete(postRef);
+      return data;
+    });
+
+    // Parent deletion deliberately leaves likes/comments for admin cleanup.
+    // Storage cleanup must never turn a committed deletion into a failure.
+    try {
+      final storage = supabase.storage.from('post-images');
+      final base = Uri.parse(storage.getPublicUrl(''));
+      final urls = <String>{
+        ...?((data['imageUrls'] as List?)?.whereType<String>()),
+        if (data['imageUrl'] is String) data['imageUrl'] as String,
+      };
+      final paths = <String>{};
+      for (final url in urls) {
+        final uri = Uri.tryParse(url);
+        if (uri == null ||
+            (uri.scheme != 'https' && uri.scheme != 'http') ||
+            !uri.hasAuthority ||
+            uri.origin != base.origin ||
+            !uri.path.startsWith(base.path)) {
+          continue;
+        }
+        final path = Uri.decodeComponent(uri.path.substring(base.path.length));
+        final segments = path.split('/');
+        if (segments.length < 2 ||
+            segments.first != uid ||
+            segments.any(
+              (part) => part.isEmpty || part == '.' || part == '..',
+            )) {
+          continue;
+        }
+        paths.add(path);
+      }
+      if (paths.isNotEmpty) {
+        await storage
+            .remove(paths.toList())
+            .timeout(const Duration(seconds: 10));
+      }
+    } catch (_) {
+      // Best effort: the post is already deleted even if images remain.
+    }
+  }
 
   Future<PostModel> _mapPost(
     DocumentSnapshot<Map<String, dynamic>> doc,

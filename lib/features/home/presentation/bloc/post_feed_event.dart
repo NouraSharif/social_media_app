@@ -11,6 +11,14 @@ sealed class PostFeedEvent extends Equatable{
 class PostFeedRequested extends PostFeedEvent{
   const PostFeedRequested();
 }
+
+class PostFeedPostDeleted extends PostFeedEvent {
+  final String postId;
+  const PostFeedPostDeleted(this.postId);
+
+  @override
+  List<Object?> get props => [postId];
+}
 class PostFeedLikeToggled extends PostFeedEvent{
   final PostEntity post;
   const PostFeedLikeToggled(this.post);
