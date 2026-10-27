@@ -7,7 +7,6 @@ import 'package:social_media_app/core/injection_container.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import 'package:social_media_app/core/widgets/app_snack_bar.dart';
-import 'package:social_media_app/features/chat/data/model/chat_model.dart';
 import 'package:social_media_app/features/chat/presentation/bloc/chats/chats_cubit.dart';
 import 'package:social_media_app/features/chat/presentation/bloc/chats/chats_state.dart';
 import 'package:social_media_app/features/chat/presentation/bloc/new_message_user_cubit.dart';
@@ -143,17 +142,11 @@ class _MessagesPageState extends State<MessagesPage>
                                   itemBuilder: (context, i) {
                                     final chat = state.chats[i];
                                     return ChatListItem(
-                                      chatModel: ChatModel(
-                                        chatId: chat.chatId,
-                                        otherUserId: chat.otherUserId,
-                                        image: chat.image,
-                                        displayName: chat.displayName,
-                                        userName: chat.userName,
-                                        lastMessage: chat.lastMessage,
-                                        lastMessageAt: chat.lastMessageAt,
-                                        lastMessageSenderId:
-                                            chat.lastMessageSenderId,
-                                      ),
+                                      chatId: chat.chatId,
+                                      image: chat.image,
+                                      displayName: chat.displayName,
+                                      lastMessage: chat.lastMessage,
+                                      lastMessageAt: chat.lastMessageAt,
                                       isActive: true,
                                       unreadCount: 0,
                                       onDelete: () {

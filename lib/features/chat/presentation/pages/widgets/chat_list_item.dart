@@ -2,18 +2,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
-import 'package:social_media_app/features/chat/data/model/chat_model.dart';
 
 class ChatListItem extends StatelessWidget {
   const ChatListItem({
     super.key,
-    required this._chatModel,
+    required this.chatId,
+    required this.displayName,
+    required this.lastMessage,
+    required this.lastMessageAt,
+    required this.image,
     required this.isActive,
     required this.unreadCount,
     required this.onDelete,
     required this.onTap,
   });
-  final ChatModel _chatModel;
+
+  final String chatId;
+  final String displayName;
+  final String lastMessage;
+  final DateTime? lastMessageAt;
+  final String? image;
+
   final bool isActive;
 
   final int unreadCount;
@@ -47,7 +56,7 @@ class ChatListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: ValueKey(_chatModel.chatId),
+      key: ValueKey(chatId),
       direction: DismissDirection.endToStart,
       background: Container(
         padding: const EdgeInsets.only(right: 20),
@@ -68,14 +77,14 @@ class ChatListItem extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                _chatModel.image != null
+                image != null
                     ? SizedBox(
                         width: 45,
                         height: 45,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: Image.network(
-                            _chatModel.image!,
+                            image!,
                             width: 45,
                             height: 45,
                             fit: BoxFit.cover,
@@ -124,7 +133,7 @@ class ChatListItem extends StatelessWidget {
                 spacing: 2,
                 children: [
                   Text(
-                    _chatModel.displayName,
+                    displayName,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -135,9 +144,7 @@ class ChatListItem extends StatelessWidget {
                   ),
 
                   Text(
-                    _chatModel.lastMessage.isEmpty
-                        ? 'Sent a photo'
-                        : _chatModel.lastMessage,
+                    lastMessage.isEmpty ? 'Sent a photo' : lastMessage,
                     style: unreadCount > 0
                         ? const TextStyle(
                             fontSize: 12,
@@ -169,7 +176,7 @@ class ChatListItem extends StatelessWidget {
                       )
                     : const SizedBox.shrink(),
                 Text(
-                  _formatMessageTime(_chatModel.lastMessageAt),
+                  _formatMessageTime(lastMessageAt),
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
