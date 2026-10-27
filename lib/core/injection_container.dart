@@ -12,12 +12,31 @@ import 'package:social_media_app/features/auth/domain/usecases/signup.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verification.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verify_reset_otp.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/verification/verification_cubit.dart';
+import 'package:social_media_app/features/search/data/datasource/search_users_remote_data_source_impl.dart';
+import 'package:social_media_app/features/chat/data/datasource/new_message_user_remote_data_sorce_impl.dart';
+import 'package:social_media_app/features/search/data/repository/search_users_repository_impl.dart';
+import 'package:social_media_app/features/chat/data/repository/new_message_user_repository_iml.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chat/get_or_create_chat.dart';
+import 'package:social_media_app/features/search/domain/usecase/search_users_usecase.dart';
+import 'package:social_media_app/features/chat/domain/usecases/new_message_search_users_usecase.dart';
+import 'package:social_media_app/features/chat/domain/usecases/new_message_user_usecase.dart';
 import 'package:social_media_app/features/profile/data/datasource/profile_remote_data_source_impl.dart';
 import 'package:social_media_app/features/profile/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/features/profile/domain/usecase/create_basic_profile.dart';
 import 'package:social_media_app/features/profile/domain/usecase/get_profile.dart';
 import 'package:social_media_app/features/profile/domain/usecase/save_profile.dart';
 import 'package:social_media_app/features/profile/domain/usecase/update_profile.dart';
+import 'package:social_media_app/features/chat/data/datasource/chat/chat_image_storage_data_source_impl.dart';
+import 'package:social_media_app/features/chat/data/datasource/chat/chat_remote_data_source_impl.dart';
+import 'package:social_media_app/features/chat/data/datasource/chats/chats_remote_data_source_impl.dart';
+import 'package:social_media_app/features/chat/data/repository/chat_image_storage_repository_impl.dart';
+import 'package:social_media_app/features/chat/data/repository/chat_repository_impl.dart';
+import 'package:social_media_app/features/chat/data/repository/chats_repository_impl.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chats/delete_chat.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chats/get_chats.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chat/get_messages.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chat/send_message.dart';
+import 'package:social_media_app/features/chat/domain/usecases/chat/upload_chat_image_usecase.dart';
 import 'package:social_media_app/features/profile/domain/usecase/upload_profile_image.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -76,3 +95,53 @@ final uploadProfileImage = UploadProfileImage(profileRepository);
 
 final createBasicProfile = CreateBasicProfile(profileRepository);
 final updateProfile = UpdateProfile(profileRepository);
+
+// Chat
+final chatsRemoteDataSource = ChatsRemoteDataSourceImpl(
+  firebaseAuth,
+  firestore,
+);
+final chatsRepository = ChatsRepositoryImpl(chatsRemoteDataSource);
+final getChatsUseCase = GetChatsUseCase(chatsRepository);
+final deleteChatUseCase = DeleteChatUseCase(chatsRepository);
+
+final newMessageUserRemoteDataSorce = NewMessageUserRemoteDataSorceImpl(
+  firebaseAuth,
+  firestore,
+);
+final newMessageUserRepository = NewMessageUserRepositoryImp(
+  newMessageUserRemoteDataSorce,
+);
+final newMessageUserUseCase = NewMessageUserUsecase(newMessageUserRepository);
+final newMessageSearchUsersUsecase = NewMessageSearchUsersUsecase(
+  newMessageUserRepository,
+);
+
+final chatDataSource = ChatRemoteDataSourceImpl(firestore, firebaseAuth);
+final chatRepository = ChatRepositoryImpl(chatDataSource);
+final sendMessageUseCase = SendMessageUseCase(chatRepository);
+final getMessagesUseCase = GetMessagesUseCase(chatRepository);
+final getOrCreateChatUseCase = GetOrCreateChatUseCase(chatRepository);
+
+final chatImageStorageDataSource = ChatImageStorageDataSourceImpl(
+  Supabase.instance.client,
+  firebaseAuth,
+);
+
+final chatImageStorageRepository = ChatImageStorageRepositoryImpl(
+  chatImageStorageDataSource,
+);
+
+final uploadChatImageUseCase = UploadChatImageUseCase(
+  chatImageStorageRepository,
+);
+
+// Search
+final searchUsersRemoteDataSource = SearchUsersRemoteDataSourceImpl(
+  firebaseAuth,
+  firestore,
+);
+final searchUsersRepository = SearchUsersRepositoryImpl(
+  searchUsersRemoteDataSource,
+);
+final searchUsersUsecase = SearchUsersUsecase(searchUsersRepository);

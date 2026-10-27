@@ -56,6 +56,8 @@ class ProfileModel extends Profile {
       'chasingCategory': chasingCategory,
       'chasingDescription': chasingDescription,
       'profileImageUrl': profileImageUrl,
+      //حقل البحث: بتولد تلقائيا كل ما انحفظ البروفايل
+      'displayNameLower': displayName.toLowerCase(),
     };
   }
 }

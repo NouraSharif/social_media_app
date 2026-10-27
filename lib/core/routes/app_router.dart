@@ -15,11 +15,17 @@ import 'package:social_media_app/features/auth/presentation/pages/reset_password
 import 'package:social_media_app/features/auth/presentation/pages/signup/signup_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/splash/splash_page.dart';
 import 'package:social_media_app/features/auth/presentation/pages/verification/verification_page.dart';
+import 'package:social_media_app/features/chat/presentation/bloc/chat/chat_bloc.dart';
+import 'package:social_media_app/features/search/presentation/bloc/search_users_cubit.dart';
+import 'package:social_media_app/features/chat/presentation/bloc/chats/chats_cubit.dart';
+import 'package:social_media_app/features/chat/presentation/pages/chat_page.dart';
+import 'package:social_media_app/features/chat/presentation/pages/messages_page.dart';
+import 'package:social_media_app/features/chat/presentation/pages/search_chat_page.dart';
 import 'package:social_media_app/features/profile/presentation/bloc/profile/profile_cubit.dart';
 import 'package:social_media_app/features/profile/presentation/pages/complete_profile_page.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.auth,
+  initialLocation: AppRoutes.messages,
   routes: [
     GoRoute(
       path: AppRoutes.splash,
@@ -40,6 +46,7 @@ final GoRouter appRouter = GoRouter(
           sendResetOtpUseCase,
           verifyResetUseCase,
           resetPasswordUseCase,
+
           createBasicProfile,
         ),
         child: ResetPasswordPage(),
@@ -82,7 +89,6 @@ final GoRouter appRouter = GoRouter(
         );
       },
     ),
-
     GoRoute(
       path: AppRoutes.completeProfile,
       builder: (context, state) {
@@ -95,7 +101,6 @@ final GoRouter appRouter = GoRouter(
             ),
           );
         }
-
         return BlocProvider(
           create: (context) => ProfileCubit(
             saveProfile: saveProfile,
@@ -104,6 +109,45 @@ final GoRouter appRouter = GoRouter(
             updateProfileUseCase: updateProfile,
           ),
           child: CompleteProfilePage(uid: user.uid),
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.messages,
+      builder: (context, builder) => BlocProvider(
+        create: ((context) => ChatsCubit(
+          getChatsUseCase: getChatsUseCase,
+          deleteChatUseCase: deleteChatUseCase,
+        )),
+        child: MessagesPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.searchChat,
+      builder: (context, builder) => BlocProvider(
+        create: (((context) => SearchUsersCubit(searchUsersUsecase))),
+        child: SearchChatPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.chat,
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
+
+        return BlocProvider(
+          create: (context) => ChatBloc(
+            sendMessageUseCase: sendMessageUseCase,
+            getMessagesUseCase: getMessagesUseCase,
+            uploadChatImageUseCase: uploadChatImageUseCase,
+            getOrCreateChatUseCase: getOrCreateChatUseCase,
+          ),
+          child: ChatPage(
+            chatId: data['chatId'] as String,
+            otherUserId: data['otherUserId'] as String,
+            displayName: data['displayName'] as String,
+            userName: data['userName'] as String,
+            image: data['image'] as String?,
+          ),
         );
       },
     ),

@@ -12,4 +12,9 @@ class AppRoutes {
   static const String newPassword = '/newpassword';
   static const String verification = '/verification';
   static const String completeProfile = '/completeprofile';
+
+  // Chatting
+  static const String messages = '/messages';
+  static const String searchChat = '/searchchat';
+  static const String chat = '/chat';
 }

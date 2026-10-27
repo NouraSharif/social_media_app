@@ -185,25 +185,25 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           return false;
         }
 
+        final profileModel = ProfileModel(
+          username: username,
+          displayName: emailPrefix,
+          firstName: '',
+          lastName: '',
+          bio: '',
+          dateOfBirth: '',
+          gender: '',
+          address: '',
+          country: '',
+          state: '',
+          city: '',
+          zipCode: '',
+          chasingCategory: '',
+          chasingDescription: '',
+          profileImageUrl: null,
+        );
         transaction.set(usernameRef, {'uid': uid, 'username': username});
-
-        transaction.set(profileRef, {
-          'username': username,
-          'displayName': emailPrefix,
-          'firstName': '',
-          'lastName': '',
-          'bio': '',
-          'dateOfBirth': '',
-          'gender': '',
-          'address': '',
-          'country': '',
-          'state': '',
-          'city': '',
-          'zipCode': '',
-          'chasingCategory': '',
-          'chasingDescription': '',
-          'profileImageUrl': null,
-        });
+        transaction.set(profileRef, profileModel.toMap());
 
         return true;
       });
