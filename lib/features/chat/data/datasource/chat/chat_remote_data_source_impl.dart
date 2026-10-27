@@ -27,31 +27,15 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     final participants = [currentUserId, message.receiverId]..sort();
 
     try {
-      final chatQuery = await _firestore
-          .collection('chats')
-          .where('participants', arrayContains: currentUserId)
-          .get();
-
-      final matchingChat = chatQuery.docs.where((doc) {
-        final chatParticipants = List<String>.from(
-          doc.data()['participants'] ?? [],
-        );
-
-        return chatParticipants.length == 2 &&
-            chatParticipants.contains(message.receiverId);
-      }).firstOrNull;
-
-      final isNewChat = matchingChat == null;
-
       final chatId = base64Url.encode(utf8.encode(participants.join('|')));
+      final chatRef = _firestore.collection('chats').doc(chatId);
+      final chatDoc = await chatRef.get();
+      final isNewChat = !chatDoc.exists;
 
-      final chatRef =
-          matchingChat?.reference ?? _firestore.collection('chats').doc(chatId);
       final messageRef = chatRef.collection('messages').doc();
       final batch = _firestore.batch();
       final timestamp = FieldValue.serverTimestamp();
 
-      // Save the message.
       batch.set(messageRef, {
         'senderId': currentUserId,
         'receiverId': message.receiverId,
@@ -61,7 +45,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       });
 
       if (isNewChat) {
-        // Create the chat when the first message is sent.
         batch.set(chatRef, {
           'participants': participants,
           'createdAt': timestamp,
@@ -72,7 +55,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           'hasMessages': true,
         });
       } else {
-        // Update the existing chat and make it visible to both users again.
         batch.update(chatRef, {
           'lastMessage': message.text,
           'lastMessageAt': timestamp,
@@ -93,10 +75,31 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
   @override
   Stream<List<Message>> getMessages(String chatId) {
+    final currentUserId = _auth.currentUser?.uid;
+
+    if (currentUserId == null) {
+      return Stream.error(Exception('User is not authenticated'));
+    }
+
     final chatRef = _firestore.collection('chats').doc(chatId);
 
-    return chatRef.snapshots().asyncExpand((chatSnapshot) {
+    return chatRef.snapshots(includeMetadataChanges: true).asyncExpand((
+      chatSnapshot,
+    ) {
       if (!chatSnapshot.exists) {
+        return Stream.value(<Message>[]);
+      }
+
+      final participants = chatSnapshot.data()?['participants'];
+
+      if (participants is! List || !participants.contains(currentUserId)) {
+        return Stream.error(
+          Exception('Current user is not a participant in this chat'),
+        );
+      }
+
+      // لا تفتح الـ listener على الرسائل إذا الشات لسا pending على السيرفر
+      if (chatSnapshot.metadata.hasPendingWrites) {
         return Stream.value(<Message>[]);
       }
 

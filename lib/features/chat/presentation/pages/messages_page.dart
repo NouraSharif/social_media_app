@@ -133,7 +133,7 @@ class _MessagesPageState extends State<MessagesPage>
                         : state is ChatsLoaded
                         ? state.chats.isEmpty
                               ? const EmptyStateMessage(
-                                  message: 'Start a conversation and connect with others!',
+                                  message: 'You have no conversations yet',
                                 )
                               : ListView.separated(
                                   padding: const EdgeInsets.only(top: 10),
