@@ -14,7 +14,10 @@ class CustomTextFormField extends StatelessWidget {
     this.suffixIcon,
     this.suffixStyle,
     this.obscureText = false,
+    this.errorText,
+    this.onChanged,
   });
+
   final String label;
   final TextEditingController controller;
   final String? Function(String?)? validator;
@@ -25,6 +28,8 @@ class CustomTextFormField extends StatelessWidget {
   final Widget? suffixIcon;
   final TextStyle? suffixStyle;
   final bool obscureText;
+  final String? errorText;
+  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +41,7 @@ class CustomTextFormField extends StatelessWidget {
         TextFormField(
           controller: controller,
           validator: validator,
+          onChanged: onChanged,
           onTapOutside: (event) {
             FocusScope.of(context).unfocus();
           },
@@ -43,6 +49,7 @@ class CustomTextFormField extends StatelessWidget {
             hintText: hintText,
             hintStyle: AppTextStyles.body,
             suffixIcon: suffixIcon,
+            errorText: errorText,
           ),
           maxLines: obscureText ? 1 : maxLines,
           readOnly: readOnly ?? false,

@@ -57,6 +57,26 @@ class HomePage extends StatelessWidget {
                 itemCount: state.posts.length,
                 itemBuilder: (_, index) {
                   final post = state.posts[index];
+                  Future<void> openPostDetails() async {
+                    final deleted = await context.push<bool>(
+                      AppRoutes.postDetailsPath(post.id),
+                    );
+                    if (context.mounted) {
+                      if (deleted == true) {
+                        AppSnackBar.showSuccess(
+                          context,
+                          'Post deleted successfully.',
+                        );
+                        context.read<PostFeedBloc>().add(
+                          PostFeedPostDeleted(post.id),
+                        );
+                      }
+                      context.read<PostFeedBloc>().add(
+                        const PostFeedRequested(),
+                      );
+                    }
+                  }
+
                   return PostCard(
                     key: ValueKey(post.id),
                     post: post,
@@ -77,25 +97,8 @@ class HomePage extends StatelessWidget {
                               PostFeedLikeToggled(post),
                             );
                           },
-                    onTap: () async {
-                      final deleted = await context.push<bool>(
-                        AppRoutes.postDetailsPath(post.id),
-                      );
-                      if (context.mounted) {
-                        if (deleted == true) {
-                          AppSnackBar.showSuccess(
-                            context,
-                            'Post deleted successfully.',
-                          );
-                          context.read<PostFeedBloc>().add(
-                            PostFeedPostDeleted(post.id),
-                          );
-                        }
-                        context.read<PostFeedBloc>().add(
-                          const PostFeedRequested(),
-                        );
-                      }
-                    },
+                    onTap: openPostDetails,
+                    onCommentTap: openPostDetails,
                   );
                 },
               );

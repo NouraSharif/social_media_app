@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:social_media_app/features/post_details/domain/entities/comment_entity.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/context_extension.dart';
+import '../../../../core/utils/helper_functions.dart';
+import '../../../../core/widgets/stat_ship.dart';
 
 class CommentCard extends StatelessWidget {
   final CommentEntity comment;
+  final VoidCallback? onLikeTap;
 
-  const CommentCard({super.key, required this.comment});
+  const CommentCard({super.key, required this.comment, this.onLikeTap});
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +76,26 @@ class CommentCard extends StatelessWidget {
           Text(
             comment.content,
             style: AppTextStyles.body.copyWith(fontSize: context.sp(14)),
+          ),
+          Row(
+            spacing: context.w(65),
+            children: [
+              StatChip(
+                icon: comment.isLiked
+                    ? CupertinoIcons.hand_thumbsup_fill
+                    : CupertinoIcons.hand_thumbsup,
+                label: HelperFunctions.formatCount(comment.likesCount),
+                color: comment.isLiked
+                    ? AppColors.primary
+                    : AppColors.iconBackground,
+                onTap: onLikeTap,
+              ),
+              StatChip(
+                icon: CupertinoIcons.arrow_2_squarepath,
+                label: HelperFunctions.formatCount(0),
+                color: AppColors.iconBackground,
+              ),
+            ],
           ),
         ],
       ),

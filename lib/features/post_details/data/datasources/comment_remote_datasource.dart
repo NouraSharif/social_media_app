@@ -10,15 +10,51 @@ class CommentRemoteDataSource {
   const CommentRemoteDataSource(this.firestore, this.auth);
 
   Future<List<CommentModel>> getCommentsByPostId(String postId) async {
+    final uid = auth.currentUser?.uid;
     final snapshot = await firestore
         .collection('posts')
         .doc(postId)
         .collection('comments')
         .orderBy('createdAt', descending: true)
         .get();
-    return snapshot.docs
-        .map((doc) => CommentModel.fromMap(doc.id, postId, doc.data()))
-        .toList();
+    return Future.wait(
+      snapshot.docs.map((doc) async {
+        final liked =
+            uid != null &&
+            (await doc.reference.collection('likes').doc(uid).get()).exists;
+        return CommentModel.fromMap(doc.id, postId, doc.data(), isLiked: liked);
+      }),
+    );
+  }
+
+  Future<CommentModel> toggleLike(String postId, String commentId) async {
+    final uid = auth.currentUser?.uid;
+    if (uid == null) throw StateError('Please sign in to like comments.');
+    final commentRef = firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .doc(commentId);
+    final likeRef = commentRef.collection('likes').doc(uid);
+    return firestore.runTransaction<CommentModel>((transaction) async {
+      final comment = await transaction.get(commentRef);
+      final like = await transaction.get(likeRef);
+      final data = comment.data();
+      if (data == null) throw StateError('Comment not found.');
+      final count = (data['likesCount'] as num?)?.toInt() ?? 0;
+      final nextCount = count + (like.exists ? -1 : 1);
+      if (nextCount < 0) throw StateError('Invalid like count.');
+      if (like.exists) {
+        transaction.delete(likeRef);
+      } else {
+        transaction.set(likeRef, {'createdAt': FieldValue.serverTimestamp()});
+      }
+      transaction.update(commentRef, {'likesCount': nextCount});
+      return CommentModel.fromMap(commentId, postId, {
+        ...data,
+        'likesCount': nextCount,
+      }, isLiked: !like.exists);
+    });
   }
 
   Future<CommentModel> addComment(CommentModel comment) async {

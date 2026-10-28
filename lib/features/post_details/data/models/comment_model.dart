@@ -35,8 +35,9 @@ class CommentModel extends CommentEntity {
   factory CommentModel.fromMap(
     String id,
     String postId,
-    Map<String, dynamic> data,
-  ) {
+    Map<String, dynamic> data, {
+    bool isLiked = false,
+  }) {
     final createdAt = (data['createdAt'] as Timestamp?)?.toDate();
     final age = createdAt == null
         ? Duration.zero
@@ -49,6 +50,8 @@ class CommentModel extends CommentEntity {
       userName: data['userName'] as String? ?? 'User',
       userAvatarUrl: data['userPhotoUrl'] as String?,
       content: data['content'] as String,
+      likesCount: (data['likesCount'] as num?)?.toInt() ?? 0,
+      isLiked: isLiked,
       timeAgo: age.inMinutes < 1
           ? 'Just now'
           : age.inHours < 1

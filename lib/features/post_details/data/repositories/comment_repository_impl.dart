@@ -16,7 +16,6 @@ class CommentRepositoryImpl implements CommentRepository {
       remoteDatasource.addComment(CommentModel.fromEntity(comment));
 
   @override
-  Future<CommentEntity> toggleLike(CommentEntity comment) {
-    throw UnsupportedError('Comment likes are not available.');
-  }
+  Future<CommentEntity> toggleLike(CommentEntity comment) =>
+      remoteDatasource.toggleLike(comment.postId, comment.id);
 }

@@ -10,6 +10,7 @@ class PostDetailsState extends Equatable {
   final List<CommentEntity> comments;
   final String? errorMessage;
   final bool isLiking;
+  final Set<String> likingCommentIds;
   final bool isSubmitting;
   final int submittedCount;
 
@@ -19,6 +20,7 @@ class PostDetailsState extends Equatable {
     this.comments = const [],
     this.errorMessage,
     this.isLiking = false,
+    this.likingCommentIds = const {},
     this.isSubmitting = false,
     this.submittedCount = 0,
   });
@@ -29,6 +31,7 @@ class PostDetailsState extends Equatable {
     List<CommentEntity>? comments,
     String? errorMessage,
     bool? isLiking,
+    Set<String>? likingCommentIds,
     bool? isSubmitting,
     int? submittedCount,
   }) => PostDetailsState(
@@ -37,6 +40,7 @@ class PostDetailsState extends Equatable {
     comments: comments ?? this.comments,
     errorMessage: errorMessage,
     isLiking: isLiking ?? this.isLiking,
+    likingCommentIds: likingCommentIds ?? this.likingCommentIds,
     isSubmitting: isSubmitting ?? this.isSubmitting,
     submittedCount: submittedCount ?? this.submittedCount,
   );
@@ -48,6 +52,7 @@ class PostDetailsState extends Equatable {
     comments,
     errorMessage,
     isLiking,
+    likingCommentIds,
     isSubmitting,
     submittedCount,
   ];

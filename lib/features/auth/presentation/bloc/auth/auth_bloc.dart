@@ -6,6 +6,7 @@ import 'package:social_media_app/features/auth/domain/usecases/reset_password.da
 import 'package:social_media_app/features/auth/domain/usecases/send_reset_otp.dart';
 import 'package:social_media_app/features/auth/domain/usecases/verify_reset_otp.dart';
 import 'package:social_media_app/features/auth/presentation/bloc/auth/auth_state.dart';
+import 'package:social_media_app/features/profile/domain/usecase/create_basic_profile.dart';
 
 import '../../../domain/usecases/signup.dart';
 import 'auth_event.dart';
@@ -18,12 +19,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final VerifyResetUseCase verifyResetUseCase;
   final ResetPasswordUseCase resetPasswordUseCase;
 
+  final CreateBasicProfile createBasicProfile;
+
   AuthBloc(
     this.signupUseCase,
     this.loginUseCase,
     this.sendResetOtpUseCase,
     this.verifyResetUseCase,
     this.resetPasswordUseCase,
+    this.createBasicProfile,
   ) : super(AuthInitial()) {
     on<SignupRequested>(_onSignupRequested);
     on<LoginRequested>(_onLoginRequested);
@@ -39,14 +43,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     try {
-      await signupUseCase(email: event.email, password: event.password);
+      final user = await signupUseCase(
+        email: event.email,
+        password: event.password,
+      );
+
+      await createBasicProfile(uid: user.id, email: user.email);
 
       emit(AuthSuccess());
     } catch (e) {
       if (e is FirebaseAuthException) {
         emit(AuthFailure(_getAuthErrorMessage(e)));
       } else {
-        emit(AuthFailure('Something went wrong. Please try again.'));
+        emit(AuthFailure(e.toString()));
       }
     }
   }
@@ -58,14 +67,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     try {
-      await loginUseCase(email: event.email, password: event.password);
+      final user = await loginUseCase(
+        email: event.email,
+        password: event.password,
+      );
+
+      await createBasicProfile(uid: user.id, email: user.email);
 
       emit(AuthSuccess());
     } catch (e) {
       if (e is FirebaseAuthException) {
         emit(AuthFailure(_getAuthErrorMessage(e)));
       } else {
-        emit(AuthFailure('Something went wrong. Please try again.'));
+        emit(AuthFailure(e.toString()));
       }
     }
   }

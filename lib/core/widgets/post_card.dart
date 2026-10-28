@@ -12,6 +12,7 @@ import 'post_delete_menu.dart';
 class PostCard extends StatelessWidget {
   final PostEntity post;
   final VoidCallback? onLikeTap;
+  final VoidCallback? onCommentTap;
   final VoidCallback? onTap;
   final VoidCallback? onDeleted;
 
@@ -19,6 +20,7 @@ class PostCard extends StatelessWidget {
     super.key,
     required this.post,
     this.onLikeTap,
+    this.onCommentTap,
     this.onTap,
     this.onDeleted,
   });
@@ -41,6 +43,7 @@ class PostCard extends StatelessWidget {
         border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
       ),
       child: Column(
+        spacing: 8,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -152,6 +155,7 @@ class PostCard extends StatelessWidget {
                 icon: CupertinoIcons.chat_bubble,
                 label: HelperFunctions.formatCount(post.commentsCount),
                 color: AppColors.iconBackground,
+                onTap: onCommentTap,
               ),
               StatChip(
                 icon: CupertinoIcons.arrow_2_squarepath,

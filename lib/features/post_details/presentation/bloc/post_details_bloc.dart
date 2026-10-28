@@ -8,12 +8,14 @@ import 'package:social_media_app/features/post_details/domain/usecases/get_comme
 
 import 'post_details_event.dart';
 import 'post_details_state.dart';
+import '../../domain/usecases/toggle_comment_like_usecase.dart';
 
 class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
   final GetPostByIdUseCase getPostByIdUseCase;
   final TogglePostLikeUseCase togglePostLikeUseCase;
   final GetCommentsUseCase getCommentsUseCase;
   final AddCommentUseCase addCommentUseCase;
+  final ToggleCommentLikeUseCase toggleCommentLikeUseCase;
   late String _postId;
 
   PostDetailsBloc({
@@ -21,16 +23,19 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
     required this.togglePostLikeUseCase,
     required this.getCommentsUseCase,
     required this.addCommentUseCase,
+    required this.toggleCommentLikeUseCase,
   }) : super(const PostDetailsState()) {
     on<PostDetailsRequested>(_onRequested);
     on<PostDetailsPostLikeToggled>(_onPostLikeToggled);
     on<PostDetailsCommentSubmitted>(_onCommentSubmitted);
+    on<PostDetailsCommentLikeToggled>(_onCommentLikeToggled);
   }
 
   Future<void> _onRequested(
     PostDetailsRequested event,
     Emitter<PostDetailsState> emit,
   ) async {
+    if (state.likingCommentIds.isNotEmpty || state.isSubmitting) return;
     _postId = event.postId;
     emit(state.copyWith(status: PostDetailsStatus.loading));
     try {
@@ -78,7 +83,12 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
     PostDetailsCommentSubmitted event,
     Emitter<PostDetailsState> emit,
   ) async {
-    if (state.isSubmitting || state.isLiking || state.post == null) return;
+    if (state.isSubmitting ||
+        state.isLiking ||
+        state.likingCommentIds.isNotEmpty ||
+        state.post == null) {
+      return;
+    }
     final text = event.content.trim();
     if (text.isEmpty || text.length > 2000) return;
     emit(state.copyWith(isSubmitting: true));
@@ -120,6 +130,45 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
         state.copyWith(
           isSubmitting: false,
           errorMessage: 'Comment sent. Could not refresh the latest comments.',
+        ),
+      );
+    }
+  }
+
+  Future<void> _onCommentLikeToggled(
+    PostDetailsCommentLikeToggled event,
+    Emitter<PostDetailsState> emit,
+  ) async {
+    if (state.status != PostDetailsStatus.success ||
+        state.isSubmitting ||
+        state.likingCommentIds.contains(event.commentId)) {
+      return;
+    }
+    final index = state.comments.indexWhere((c) => c.id == event.commentId);
+    if (index < 0) return;
+    final comment = state.comments[index];
+    emit(
+      state.copyWith(
+        likingCommentIds: {...state.likingCommentIds, event.commentId},
+      ),
+    );
+    try {
+      final updated = await toggleCommentLikeUseCase(comment);
+      emit(
+        state.copyWith(
+          comments: state.comments
+              .map((c) => c.id == updated.id ? updated : c)
+              .toList(),
+          likingCommentIds: {...state.likingCommentIds}
+            ..remove(event.commentId),
+        ),
+      );
+    } catch (_) {
+      emit(
+        state.copyWith(
+          likingCommentIds: {...state.likingCommentIds}
+            ..remove(event.commentId),
+          errorMessage: 'Could not update comment like. Check your connection and sign-in, then try again.',
         ),
       );
     }

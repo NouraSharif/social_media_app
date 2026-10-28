@@ -8,27 +8,34 @@ sealed class PostDetailsEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class PostDetailsRequested extends PostDetailsEvent{
+class PostDetailsCommentLikeToggled extends PostDetailsEvent {
+  final String commentId;
+  const PostDetailsCommentLikeToggled(this.commentId);
+
+  @override
+  List<Object?> get props => [commentId];
+}
+
+class PostDetailsRequested extends PostDetailsEvent {
   final String postId;
   const PostDetailsRequested(this.postId);
 
   @override
   List<Object?> get props => [postId];
-  }
+}
 
-  class PostDetailsPostLikeToggled extends PostDetailsEvent {
-
+class PostDetailsPostLikeToggled extends PostDetailsEvent {
   final PostEntity post;
   const PostDetailsPostLikeToggled(this.post);
 
   @override
   List<Object?> get props => [post];
-  }
+}
 
-  class PostDetailsCommentSubmitted extends PostDetailsEvent{
-    final String content;
-    const PostDetailsCommentSubmitted(this.content);
+class PostDetailsCommentSubmitted extends PostDetailsEvent {
+  final String content;
+  const PostDetailsCommentSubmitted(this.content);
 
-    @override
+  @override
   List<Object?> get props => [content];
-  }
+}

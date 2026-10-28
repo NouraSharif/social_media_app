@@ -15,6 +15,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/injection_container.dart';
 import '../../domain/usecases/get_comments_usecase.dart';
 import '../../domain/usecases/add_comment_usecase.dart';
+import '../../domain/usecases/toggle_comment_like_usecase.dart';
 import '../widgets/comment_card.dart';
 import '../bloc/post_details_bloc.dart';
 import '../bloc/post_details_event.dart';
@@ -32,6 +33,7 @@ class PostDetailsPage extends StatelessWidget {
         togglePostLikeUseCase: sl<TogglePostLikeUseCase>(),
         getCommentsUseCase: sl<GetCommentsUseCase>(),
         addCommentUseCase: sl<AddCommentUseCase>(),
+        toggleCommentLikeUseCase: sl<ToggleCommentLikeUseCase>(),
       )..add(PostDetailsRequested(postId)),
       child: _PostDetailsView(postId: postId),
     );
@@ -162,7 +164,20 @@ class _PostDetailsViewState extends State<_PostDetailsView> {
                                   );
                                 },
                         )
-                      : CommentCard(comment: state.comments[index - 1]),
+                      : CommentCard(
+                          comment: state.comments[index - 1],
+                          onLikeTap:
+                              state.isSubmitting ||
+                                  state.likingCommentIds.contains(
+                                    state.comments[index - 1].id,
+                                  )
+                              ? null
+                              : () => context.read<PostDetailsBloc>().add(
+                                  PostDetailsCommentLikeToggled(
+                                    state.comments[index - 1].id,
+                                  ),
+                                ),
+                        ),
                 ),
               ),
               if (state.isSubmitting) const LinearProgressIndicator(),
@@ -172,6 +187,7 @@ class _PostDetailsViewState extends State<_PostDetailsView> {
                 isEnabled:
                     !state.isSubmitting &&
                     !state.isLiking &&
+                    state.likingCommentIds.isEmpty &&
                     _commentController.text.trim().isNotEmpty &&
                     _commentController.text.trim().length <= 2000,
                 onSend: () => context.read<PostDetailsBloc>().add(
@@ -262,7 +278,7 @@ class CommentBar extends StatelessWidget {
                 minimumSize: Size(context.w(34), context.h(34)),
                 padding: EdgeInsets.zero,
                 backgroundColor: isEnabled
-                    ?  null
+                    ? null
                     : AppColors.primary.withValues(alpha: 0.4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(context.w(10)),
