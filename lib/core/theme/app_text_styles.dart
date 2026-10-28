@@ -66,4 +66,13 @@ class AppTextStyles {
     height: 1.0,
     color: AppColors.error,
   );
+  // usernames
+  static const TextStyle username = TextStyle(
+    fontFamily: 'Poppins',
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    height: 1.0,
+    color: AppColors.textPrimary,
+  );
+
 }

@@ -25,4 +25,20 @@ class Assets {
   /// Assets for imagesUploadPicture
   /// assets/images/upload_picture.png
   static const String imagesUploadPicture = "assets/images/upload_picture.png";
+
+  /// Assets for imagesCategoriesPicsC1
+  /// assets/images/categories_pics/c1.jpg
+  static const String imagesCategoriesPicsC1 = "assets/images/categories_pics/c1.jpg";
+
+  /// Assets for imagesCategoriesPicsC2
+  /// assets/images/categories_pics/c2.jpg
+  static const String imagesCategoriesPicsC2 = "assets/images/categories_pics/c2.jpg";
+
+  /// Assets for imagesCategoriesPicsC3
+  /// assets/images/categories_pics/c3.jpg
+  static const String imagesCategoriesPicsC3 = "assets/images/categories_pics/c3.jpg";
+
+  /// Assets for imagesCategoriesPicsC4
+  /// assets/images/categories_pics/c4.jpg
+  static const String imagesCategoriesPicsC4 = "assets/images/categories_pics/c4.jpg";
 }

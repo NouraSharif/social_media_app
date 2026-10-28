@@ -1,3 +1,5 @@
+import 'package:go_router/go_router.dart';
+import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -139,6 +141,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
             });
 
             AppSnackBar.showSuccess(context, 'Profile updated successfully.');
+            context.go(AppRoutes.home);
           }
 
           if (state is ProfileFailure) {
@@ -265,7 +268,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
                       SkipButton(
                         onPressed: () {
-                          //Go To Home
+                          context.go(AppRoutes.home);
                         },
                       ),
                     ],
