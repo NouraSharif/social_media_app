@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../domain/entities/post_entity.dart';
-import '../domain/usecases/delete_post_usecase.dart';
-import '../injection_container.dart';
+import '../../domain/entities/post_entity.dart';
+import '../../domain/usecases/delete_post_usecase.dart';
+import '../../../../core/injection_container.dart';
 
 class PostDeleteMenu extends StatelessWidget {
   final PostEntity post;

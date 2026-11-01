@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:social_media_app/features/post_details/domain/entities/comment_entity.dart';
 
@@ -6,7 +5,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/context_extension.dart';
 import '../../../../core/utils/helper_functions.dart';
-import '../../../../core/widgets/stat_ship.dart';
+import '../../../posts/presentation/widgets/stat_chip.dart';
+import '../../../../core/widgets/author_avatar.dart';
 
 class CommentCard extends StatelessWidget {
   final CommentEntity comment;
@@ -30,26 +30,11 @@ class CommentCard extends StatelessWidget {
           Row(
             spacing: 10,
             children: [
-              Container(
-                width: avatarRadius * 2,
-                height: avatarRadius * 2,
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceLight,
-                  borderRadius: BorderRadius.circular(10),
-                  image: comment.userAvatarUrl != null
-                      ? DecorationImage(
-                          image: NetworkImage(comment.userAvatarUrl!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-                child: comment.userAvatarUrl == null
-                    ? Icon(
-                        Icons.person,
-                        color: AppColors.textSecondary,
-                        size: context.w(22),
-                      )
-                    : null,
+              AuthorAvatar(
+                key: ValueKey(comment.authorId),
+                authorId: comment.authorId,
+                fallbackUrl: comment.userAvatarUrl,
+                size: avatarRadius * 2,
               ),
               Expanded(
                 child: Column(

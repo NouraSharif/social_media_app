@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/post_model.dart';
-import '../../error/exceptions.dart';
+import '../../../../core/error/exceptions.dart';
 
 class PostRemoteDataSource {
   final FirebaseFirestore firestore;

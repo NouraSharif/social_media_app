@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:social_media_app/core/domain/usecases/toggle_post_like_usecase.dart';
+import 'package:social_media_app/features/posts/domain/usecases/toggle_post_like_usecase.dart';
 import 'package:social_media_app/features/home/presentation/bloc/post_feed_event.dart';
 import 'package:social_media_app/features/home/presentation/bloc/post_feed_state.dart';
 
-import '../../../../core/domain/usecases/get_posts_usecase.dart';
+import '../../../posts/domain/usecases/get_posts_usecase.dart';
 
 class PostFeedBloc extends Bloc<PostFeedEvent, PostFeedState> {
   final GetPostsUseCase getPostsUseCase;

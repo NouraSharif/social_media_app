@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class PostEntity extends Equatable {
   final String id;
-  final String userName;
+  final String displayName;
   final String? userAvatarUrl;
   final bool isDeactivated;
   final String timeAgo;
@@ -19,7 +19,7 @@ class PostEntity extends Equatable {
 
   const PostEntity({
     required this.id,
-    required this.userName,
+    required this.displayName,
     this.userAvatarUrl,
     this.isDeactivated = false,
     required this.timeAgo,
@@ -38,7 +38,7 @@ class PostEntity extends Equatable {
   PostEntity copyWith({int? likesCount, int? commentsCount, bool? isLiked}) {
     return PostEntity(
       id: id,
-      userName: userName,
+      displayName: displayName,
       userAvatarUrl: userAvatarUrl,
       isDeactivated: isDeactivated,
       timeAgo: timeAgo,
@@ -58,7 +58,7 @@ class PostEntity extends Equatable {
   @override
   List<Object?> get props => [
     id,
-    userName,
+    displayName,
     userAvatarUrl,
     isDeactivated,
     timeAgo,

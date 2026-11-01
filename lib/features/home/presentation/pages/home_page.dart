@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:social_media_app/core/routes/app_routes.dart';
-import 'package:social_media_app/core/widgets/post_card.dart';
+import 'package:social_media_app/features/posts/presentation/widgets/post_card.dart';
 import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 
 import '../bloc/post_feed_bloc.dart';

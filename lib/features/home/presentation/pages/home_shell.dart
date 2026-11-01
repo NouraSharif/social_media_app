@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:social_media_app/core/constants/app_colors.dart';
-import 'package:social_media_app/core/domain/usecases/get_posts_usecase.dart';
-import 'package:social_media_app/core/domain/usecases/toggle_post_like_usecase.dart';
+import 'package:social_media_app/features/posts/domain/usecases/get_posts_usecase.dart';
+import 'package:social_media_app/features/posts/domain/usecases/toggle_post_like_usecase.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import 'package:social_media_app/core/widgets/app_snack_bar.dart';

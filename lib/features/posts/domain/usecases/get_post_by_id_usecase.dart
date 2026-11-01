@@ -1,5 +1,5 @@
-import 'package:social_media_app/core/domain/entities/post_entity.dart';
-import 'package:social_media_app/core/domain/repositories/post_repository.dart';
+import 'package:social_media_app/features/posts/domain/entities/post_entity.dart';
+import 'package:social_media_app/features/posts/domain/repositories/post_repository.dart';
 
 class GetPostByIdUseCase {
   final PostRepository repository;

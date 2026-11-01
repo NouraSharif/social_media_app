@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
-import 'package:social_media_app/core/domain/entities/post_entity.dart';
+import 'package:social_media_app/features/posts/domain/entities/post_entity.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 import 'package:social_media_app/core/utils/helper_functions.dart';
 
-import 'stat_ship.dart';
+import '../../../../core/widgets/author_avatar.dart';
+import 'stat_chip.dart';
 import 'post_delete_menu.dart';
 
 class PostCard extends StatelessWidget {
@@ -49,36 +50,23 @@ class PostCard extends StatelessWidget {
           Row(
             spacing: 12,
             children: [
-              Container(
-                width: avatarRadius * 2,
-                height: avatarRadius * 2,
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceLight,
-                  borderRadius: BorderRadius.circular(10),
-                  image: post.userAvatarUrl != null
-                      ? DecorationImage(
-                          image: NetworkImage(post.userAvatarUrl!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-                child: post.userAvatarUrl == null
-                    ? Icon(
-                        Icons.person,
-                        color: AppColors.textSecondary,
-                        size: context.w(22),
-                      )
-                    : null,
+              AuthorAvatar(
+                key: ValueKey(post.authorId),
+                authorId: post.authorId,
+                fallbackUrl: post.userAvatarUrl,
+                size: avatarRadius * 2,
               ),
               Expanded(
                 child: Column(
                   spacing: 5,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      post.userName,
-                      style: AppTextStyles.button.copyWith(
-                        fontSize: context.sp(15),
+                    InkWell(
+                      child: Text(
+                        post.displayName,
+                        style: AppTextStyles.button.copyWith(
+                          fontSize: context.sp(15),
+                        ),
                       ),
                     ),
                     Text(
@@ -95,7 +83,7 @@ class PostCard extends StatelessWidget {
                 onDeleted: onDeleted,
                 icon: Icon(
                   Icons.more_vert,
-                  color: AppColors.iconBackground,
+                  color: AppColors.secondaryIconColor,
                   size: context.w(20),
                 ),
               ),
@@ -128,12 +116,15 @@ class PostCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  Text(
-                    post.content,
-                    style: AppTextStyles.body.copyWith(
-                      fontSize: context.sp(14),
+                  if (post.content.trim().isNotEmpty) ...[
+                    if (images.isNotEmpty) const SizedBox(height: 10),
+                    Text(
+                      post.content,
+                      style: AppTextStyles.small.copyWith(
+                        color: AppColors.black,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -148,25 +139,25 @@ class PostCard extends StatelessWidget {
                 label: HelperFunctions.formatCount(post.likesCount),
                 color: post.isLiked
                     ? AppColors.primary
-                    : AppColors.iconBackground,
+                    : AppColors.secondaryIconColor,
                 onTap: onLikeTap,
               ),
               StatChip(
                 icon: CupertinoIcons.chat_bubble,
                 label: HelperFunctions.formatCount(post.commentsCount),
-                color: AppColors.iconBackground,
+                color: AppColors.secondaryIconColor,
                 onTap: onCommentTap,
               ),
               StatChip(
                 icon: CupertinoIcons.arrow_2_squarepath,
                 label: HelperFunctions.formatCount(post.repostsCount),
-                color: AppColors.iconBackground,
+                color: AppColors.secondaryIconColor,
               ),
 
               Icon(
                 CupertinoIcons.share,
                 size: context.w(18),
-                color: AppColors.iconBackground,
+                color: AppColors.secondaryIconColor,
               ),
             ],
           ),

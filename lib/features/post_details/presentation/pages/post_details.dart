@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:social_media_app/core/routes/app_routes.dart';
-import 'package:social_media_app/core/domain/usecases/get_post_by_id_usecase.dart';
-import 'package:social_media_app/core/domain/usecases/toggle_post_like_usecase.dart';
+import 'package:social_media_app/features/posts/domain/usecases/get_post_by_id_usecase.dart';
+import 'package:social_media_app/features/posts/domain/usecases/toggle_post_like_usecase.dart';
 import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
-import 'package:social_media_app/core/widgets/post_card.dart';
+import 'package:social_media_app/features/posts/presentation/widgets/post_card.dart';
 import 'package:social_media_app/core/widgets/app_snack_bar.dart';
 import 'package:social_media_app/core/widgets/second_appbar.dart';
 
@@ -125,7 +125,7 @@ class _PostDetailsViewState extends State<_PostDetailsView> {
         final post = state.post!;
 
         return Scaffold(
-          appBar: SecondAppbar(title: "${post.userName}'s Post"),
+          appBar: SecondAppbar(title: "${post.displayName}'s Post"),
           body: Column(
             children: [
               Expanded(

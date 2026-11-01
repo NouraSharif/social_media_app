@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:social_media_app/core/constants/app_assets.dart';
@@ -8,46 +6,61 @@ import 'package:social_media_app/core/theme/app_text_styles.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 
 class PhotoPickerRow extends StatelessWidget {
-  final List<String> imagePaths;
+  final Set<String> selectedSuggestions;
   final VoidCallback onAddPhotoTap;
-  final ValueChanged<int> onPhotoSelected;
+  final ValueChanged<String> onSuggestionTap;
 
   const PhotoPickerRow({
     super.key,
-    required this.imagePaths,
+    required this.selectedSuggestions,
     required this.onAddPhotoTap,
-    required this.onPhotoSelected,
+    required this.onSuggestionTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final double itemSize = context.w(76);
+    final itemSize = context.w(68).clamp(56.0, 80.0);
+    final radius = BorderRadius.circular(context.w(12).clamp(8.0, 14.0));
+    const suggestions = [
+      Assets.imagesCategoriesPicsC1,
+      Assets.imagesCategoriesPicsC2,
+      Assets.imagesCategoriesPicsC3,
+      Assets.imagesCategoriesPicsC4,
+    ];
+    final available = suggestions
+        .where((asset) => !selectedSuggestions.contains(asset))
+        .toList();
     return SizedBox(
       height: itemSize,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: context.w(16)),
-        itemCount: imagePaths.length + 1,
-        separatorBuilder: (_, __) => SizedBox(width: context.w(8)),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.w(16).clamp(12.0, 24.0),
+        ),
+        itemCount: available.length + 1,
+        separatorBuilder: (context, index) =>
+            SizedBox(width: context.w(8).clamp(6.0, 12.0)),
         itemBuilder: (context, index) {
           if (index == 0) {
             return _AddPhotoButton(size: itemSize, onTap: onAddPhotoTap);
           }
-          final photoIndex = index - 1;
-          return Tooltip(
-            message: 'Tap to remove image',
-            child: GestureDetector(
-              onTap: () => onPhotoSelected(photoIndex),
-              child: Container(
+          final asset = available[index - 1];
+          return Semantics(
+            key: ValueKey(asset),
+            button: true,
+            label: 'Add suggested photo',
+            child: Material(
+              borderRadius: radius,
+              clipBehavior: Clip.antiAlias,
+              child: Ink.image(
+                image: AssetImage(asset),
                 width: itemSize,
                 height: itemSize,
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(context.w(12)),
-                  image: DecorationImage(
-                    image: FileImage(File(imagePaths[photoIndex])),
-                    fit: BoxFit.cover,
-                  ),
+                fit: BoxFit.cover,
+                child: InkWell(
+                  borderRadius: radius,
+                  splashColor: AppColors.primary.withValues(alpha: 0.25),
+                  onTap: () => onSuggestionTap(asset),
                 ),
               ),
             ),
@@ -73,12 +86,14 @@ class _AddPhotoButton extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           color: AppColors.orangeSurface,
-          borderRadius: BorderRadius.circular(context.w(12)),
+          borderRadius: BorderRadius.circular(context.w(12).clamp(8.0, 14.0)),
         ),
-        child: Image.asset(
-          Assets.imagesFromGallery,
-          width: size * 0.4,
-          height: size * 0.4,
+        child: Center(
+          child: Image.asset(
+            Assets.imagesFromGallery,
+            width: size * 0.4,
+            height: size * 0.4,
+          ),
         ),
       ),
     );

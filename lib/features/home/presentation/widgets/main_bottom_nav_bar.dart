@@ -79,7 +79,7 @@ class _NavIcon extends StatelessWidget {
         size: context.w(24),
         color: isSelected
             ? AppColors.black
-            : AppColors.iconBackground,
+            : AppColors.secondaryIconColor,
       ),
     );
   }

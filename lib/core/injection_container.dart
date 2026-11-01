@@ -12,13 +12,14 @@ import '../features/post_details/domain/usecases/get_comments_usecase.dart';
 import '../features/post_details/domain/usecases/add_comment_usecase.dart';
 import '../features/post_details/domain/usecases/toggle_comment_like_usecase.dart';
 import '../features/create_post/domain/usecases/create_post_usecase.dart';
-import 'data/datasources/post_remote_datasource.dart';
-import 'data/repositories/post_repository_impl.dart';
-import 'domain/repositories/post_repository.dart';
-import 'domain/usecases/get_post_by_id_usecase.dart';
-import 'domain/usecases/get_posts_usecase.dart';
-import 'domain/usecases/delete_post_usecase.dart';
-import 'domain/usecases/toggle_post_like_usecase.dart';
+import '../features/posts/data/datasources/post_remote_datasource.dart';
+import 'data/profile_avatar_cache.dart';
+import '../features/posts/data/repositories/post_repository_impl.dart';
+import '../features/posts/domain/repositories/post_repository.dart';
+import '../features/posts/domain/usecases/get_post_by_id_usecase.dart';
+import '../features/posts/domain/usecases/get_posts_usecase.dart';
+import '../features/posts/domain/usecases/delete_post_usecase.dart';
+import '../features/posts/domain/usecases/toggle_post_like_usecase.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -101,6 +102,11 @@ final updateProfile = UpdateProfile(profileRepository);
 final GetIt sl = GetIt.instance;
 
 void setupDependencies() {
+  if (!sl.isRegistered<ProfileAvatarCache>()) {
+    sl.registerLazySingleton<ProfileAvatarCache>(
+      () => ProfileAvatarCache(firestore),
+    );
+  }
   // Home - Post and Comment
   /// datasources - lazy singletons
   sl.registerLazySingleton<PostRemoteDataSource>(

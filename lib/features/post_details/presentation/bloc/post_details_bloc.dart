@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:social_media_app/core/domain/usecases/get_post_by_id_usecase.dart';
-import 'package:social_media_app/core/domain/usecases/toggle_post_like_usecase.dart';
+import 'package:social_media_app/features/posts/domain/usecases/get_post_by_id_usecase.dart';
+import 'package:social_media_app/features/posts/domain/usecases/toggle_post_like_usecase.dart';
 import 'package:social_media_app/core/error/exceptions.dart';
 import 'package:social_media_app/features/post_details/domain/entities/comment_entity.dart';
 import 'package:social_media_app/features/post_details/domain/usecases/add_comment_usecase.dart';

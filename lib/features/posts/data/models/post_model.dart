@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:social_media_app/core/domain/entities/post_entity.dart';
+import 'package:social_media_app/features/posts/domain/entities/post_entity.dart';
 
 class PostModel extends PostEntity {
   const PostModel({
     required super.id,
-    required super.userName,
+    required super.displayName,
     super.userAvatarUrl,
     super.isDeactivated,
     super.imageUrl,
@@ -22,7 +22,7 @@ class PostModel extends PostEntity {
 
   factory PostModel.fromEntity(PostEntity e) => PostModel(
     id: e.id,
-    userName: e.userName,
+    displayName: e.displayName,
     userAvatarUrl: e.userAvatarUrl,
     isDeactivated: e.isDeactivated,
     timeAgo: e.timeAgo,
@@ -59,7 +59,7 @@ class PostModel extends PostEntity {
     return PostModel(
       id: id,
       authorId: data['authorId'] as String? ?? '',
-      userName: data['userName'] as String? ?? 'User',
+      displayName: data['displayName'] as String? ?? 'User',
       userAvatarUrl: data['userPhotoUrl'] as String?,
       content: data['content'] as String? ?? '',
       category: data['category'] as String? ?? 'Chasing',
