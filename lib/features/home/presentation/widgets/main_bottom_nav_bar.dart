@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:social_media_app/core/constants/app_colors.dart';
 import 'package:social_media_app/core/utils/context_extension.dart';
 
+import 'current_user_nav_avatar.dart';
+
 class MainBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -30,29 +32,29 @@ class MainBottomNavBar extends StatelessWidget {
         height: context.h(80),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(
-            _icons.length,
-                (index) {
-              if (index == 2) {
-                return Row(
-                  children: [
-                    SizedBox(width: context.w(60)),
-                    _NavIcon(
-                      icon: _icons[index],
-                      isSelected: currentIndex == index,
-                      onTap: () => onTap(index),
-                    ),
-                  ],
-                );
-              }
-
-              return _NavIcon(
-                icon: _icons[index],
-                isSelected: currentIndex == index,
-                onTap: () => onTap(index),
+          children: List.generate(_icons.length, (index) {
+            if (index == 2) {
+              return Row(
+                children: [
+                  SizedBox(width: context.w(60)),
+                  _NavIcon(
+                    icon: _icons[index],
+                    isSelected: currentIndex == index,
+                    onTap: () => onTap(index),
+                  ),
+                ],
               );
-            },
-          ),
+            }
+
+            return _NavIcon(
+              icon: _icons[index],
+              isSelected: currentIndex == index,
+              onTap: () => onTap(index),
+              visual: index == 3
+                  ? CurrentUserNavAvatar(isSelected: currentIndex == index)
+                  : null,
+            );
+          }),
         ),
       ),
     );
@@ -63,24 +65,26 @@ class _NavIcon extends StatelessWidget {
   final IconData icon;
   final bool isSelected;
   final VoidCallback onTap;
+  final Widget? visual;
 
   const _NavIcon({
     required this.icon,
     required this.isSelected,
     required this.onTap,
+    this.visual,
   });
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onTap,
-      icon: Icon(
-        icon,
-        size: context.w(24),
-        color: isSelected
-            ? AppColors.black
-            : AppColors.secondaryIconColor,
-      ),
+      icon:
+          visual ??
+          Icon(
+            icon,
+            size: context.w(24),
+            color: isSelected ? AppColors.black : AppColors.secondaryIconColor,
+          ),
     );
   }
 }

@@ -59,7 +59,7 @@ class PostModel extends PostEntity {
     return PostModel(
       id: id,
       authorId: data['authorId'] as String? ?? '',
-      displayName: data['displayName'] as String? ?? 'User',
+      displayName: data['userName'] as String? ?? 'User',
       userAvatarUrl: data['userPhotoUrl'] as String?,
       content: data['content'] as String? ?? '',
       category: data['category'] as String? ?? 'Chasing',

@@ -63,6 +63,8 @@ class PostCard extends StatelessWidget {
                   children: [
                     InkWell(
                       child: Text(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         post.displayName,
                         style: AppTextStyles.button.copyWith(
                           fontSize: context.sp(15),

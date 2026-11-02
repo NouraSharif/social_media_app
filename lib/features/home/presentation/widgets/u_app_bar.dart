@@ -55,7 +55,7 @@ class UAppBar extends StatelessWidget implements PreferredSizeWidget {
                     iconSize: iconSize,
                     icon: const Icon(
                       CupertinoIcons.bell_solid,
-                      color: AppColors.iconBackground,
+                      color: AppColors.secondaryIconColor,
                     ),
                   ),
                   Align(

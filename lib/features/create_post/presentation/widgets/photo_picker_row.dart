@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:social_media_app/core/constants/app_assets.dart';
@@ -89,10 +90,10 @@ class _AddPhotoButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(context.w(12).clamp(8.0, 14.0)),
         ),
         child: Center(
-          child: Image.asset(
-            Assets.imagesFromGallery,
-            width: size * 0.4,
-            height: size * 0.4,
+          child: Icon(
+            CupertinoIcons.photo,
+            color: AppColors.primary,
+            size: context.sp(28).clamp(24.0, 32.0),
           ),
         ),
       ),

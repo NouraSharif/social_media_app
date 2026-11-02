@@ -262,10 +262,16 @@ class _CreatePostViewState extends State<_CreatePostView> {
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
                                   children: [
+                                    if (state.imagePaths.isNotEmpty) ...[
+                                      SelectedPhotoPreviews(
+                                        imagePaths: state.imagePaths,
+                                        onRemove: _removePhoto,
+                                      ),
+                                      SizedBox(
+                                        height: context.h(12).clamp(8.0, 16.0),
+                                      ),
+                                    ],
                                     TextFormField(
-                                      onTapOutside: (event) {
-                                        FocusScope.of(context).unfocus();
-                                      },
                                       controller: _postController,
                                       focusNode: _postFocusNode,
                                       maxLines: null,
@@ -296,15 +302,6 @@ class _CreatePostViewState extends State<_CreatePostView> {
                                         focusedBorder: InputBorder.none,
                                       ),
                                     ),
-                                    if (state.imagePaths.isNotEmpty) ...[
-                                      SizedBox(
-                                        height: context.h(12).clamp(8.0, 16.0),
-                                      ),
-                                      SelectedPhotoPreviews(
-                                        imagePaths: state.imagePaths,
-                                        onRemove: _removePhoto,
-                                      ),
-                                    ],
                                   ],
                                 ),
                               ),
