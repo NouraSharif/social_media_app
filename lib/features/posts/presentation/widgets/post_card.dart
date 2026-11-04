@@ -75,6 +75,7 @@ class PostCard extends StatelessWidget {
                       post.timeAgo,
                       style: AppTextStyles.small.copyWith(
                         fontSize: context.sp(10),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ],

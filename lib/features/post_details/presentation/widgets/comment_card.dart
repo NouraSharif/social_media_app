@@ -42,6 +42,8 @@ class CommentCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
+                      maxLines:1,
+                      overflow:TextOverflow.ellipsis,
                       comment.userName,
                       style: AppTextStyles.button.copyWith(
                         fontSize: context.sp(15),
@@ -51,6 +53,7 @@ class CommentCard extends StatelessWidget {
                       comment.timeAgo,
                       style: AppTextStyles.small.copyWith(
                         fontSize: context.sp(10),
+                        color: AppColors.textPrimary
                       ),
                     ),
                   ],
@@ -60,7 +63,7 @@ class CommentCard extends StatelessWidget {
           ),
           Text(
             comment.content,
-            style: AppTextStyles.body.copyWith(fontSize: context.sp(14)),
+            style: AppTextStyles.small.copyWith(color: AppColors.black),
           ),
           Row(
             spacing: context.w(65),
@@ -72,13 +75,13 @@ class CommentCard extends StatelessWidget {
                 label: HelperFunctions.formatCount(comment.likesCount),
                 color: comment.isLiked
                     ? AppColors.primary
-                    : AppColors.iconBackground,
+                    : AppColors.secondaryIconColor,
                 onTap: onLikeTap,
               ),
               StatChip(
                 icon: CupertinoIcons.arrow_2_squarepath,
                 label: HelperFunctions.formatCount(0),
-                color: AppColors.iconBackground,
+                color: AppColors.secondaryIconColor,
               ),
             ],
           ),
