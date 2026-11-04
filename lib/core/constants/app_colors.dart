@@ -30,4 +30,6 @@ class AppColors {
   // Icon Colors
   static const Color iconBackground = Color(0xFFDFEAF5);
   static const Color iconColor = Color(0xFF1976D2);
+  static const Color secondaryIconColor = Color(0xFFBBBFD0);
+
 }

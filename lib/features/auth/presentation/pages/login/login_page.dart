@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
       listener: (context, state) {
         if (state is AuthSuccess) {
           AppSnackBar.showSuccess(context, 'Login successful.');
-          //Go To Home
+          context.go(AppRoutes.home);
         }
         if (state is AuthFailure) {
           AppSnackBar.showError(context, state.message);
